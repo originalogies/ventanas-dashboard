@@ -64,6 +64,23 @@
   .fbtn:last-child { border-radius: 0 4px 4px 0; }
   .fbtn.act { background: #1a1a1a; color: #faf9f6; border-color: #1a1a1a; }
 
+  /* Party search */
+  .party-filter { padding: 0 32px 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .party-input {
+    font-family: 'DM Mono', monospace; font-size: 12px; padding: 8px 14px;
+    border: 1px solid #d4d0c8; border-radius: 4px; background: #fff;
+    color: #1a1a1a; outline: none; width: 260px; transition: border-color 0.15s;
+  }
+  .party-input:focus { border-color: #1a1a1a; }
+  .party-input::placeholder { color: #b8a88a; }
+  .party-clear {
+    font-family: 'DM Mono', monospace; font-size: 11px; padding: 8px 14px;
+    border: 1px solid #d4d0c8; border-radius: 4px; background: transparent;
+    color: #8a8578; cursor: pointer; transition: all 0.15s;
+  }
+  .party-clear:hover { background: #ece9e1; }
+  .party-match { font-family: 'DM Mono', monospace; font-size: 10px; color: #8a8578; }
+
   /* Table */
   .table-wrap { padding: 0 32px 32px; overflow-x: auto; }
   .tbl { width: 100%; border-collapse: collapse; }
@@ -230,6 +247,13 @@
     <div class="filter-group" id="filter-group"></div>
   </div>
 
+  <!-- Party Search -->
+  <div class="party-filter">
+    <input type="text" id="party-input" class="party-input" placeholder="Filter by seller or buyer name..." oninput="setParty(this.value)">
+    <button class="party-clear" id="party-clear" onclick="clearParty()" style="display:none;">Clear</button>
+    <span class="party-match" id="party-match"></span>
+  </div>
+
   <!-- Table -->
   <div class="table-wrap">
     <table class="tbl">
@@ -266,6 +290,7 @@ const BUYER_COLORS = ['#6b7c5e','#b8860b','#8b6f5c','#6b4c8a','#4a7c8c','#5c7c6b
 
 let allData = [];
 let currentFilter = 'All';
+let partySearch = '';
 
 function parseCSV(text) {
   const lines = text.split('\n').filter(l => l.trim());
@@ -355,8 +380,28 @@ function computeStats(data) {
 
 function render() {
   const stats = computeStats(allData);
-  const filtered = currentFilter === 'All' ? allData : allData.filter(r => r.status === currentFilter);
+  let filtered = currentFilter === 'All' ? allData : allData.filter(r => r.status === currentFilter);
+  
+  // Apply party search
+  if (partySearch) {
+    const q = partySearch.toLowerCase();
+    filtered = filtered.filter(r => 
+      r.seller.toLowerCase().includes(q) || r.buyer.toLowerCase().includes(q)
+    );
+  }
+  
   const closedPct = stats.totalValue > 0 ? (stats.closedValue / stats.totalValue) * 100 : 0;
+
+  // Party match count
+  const matchEl = document.getElementById('party-match');
+  const clearEl = document.getElementById('party-clear');
+  if (partySearch) {
+    matchEl.textContent = filtered.length + ' matching transaction' + (filtered.length !== 1 ? 's' : '');
+    clearEl.style.display = 'inline-block';
+  } else {
+    matchEl.textContent = '';
+    clearEl.style.display = 'none';
+  }
 
   // Update time
   const now = new Date();
@@ -465,6 +510,17 @@ function esc(str) {
 
 function setFilter(f) {
   currentFilter = f;
+  render();
+}
+
+function setParty(val) {
+  partySearch = val.trim();
+  render();
+}
+
+function clearParty() {
+  partySearch = '';
+  document.getElementById('party-input').value = '';
   render();
 }
 
