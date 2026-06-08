@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ventanas of Westlake — Lot Closings Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,600;6..72,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Newsreader', Georgia, serif;
+    background: #faf9f6;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+  .mono { font-family: 'DM Mono', monospace; }
+
+  /* Header */
+  .header { padding: 36px 32px 28px; border-bottom: 3px solid #1a1a1a; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; }
+  .header-sub { font-size: 10px; letter-spacing: 0.2em; color: #8a8578; margin-bottom: 4px; }
+  .header h1 { font-size: 32px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; line-height: 1.1; }
+  .header-tag { font-size: 11px; color: #8a8578; margin-top: 4px; letter-spacing: 0.08em; }
+  .header-right { text-align: right; }
+  .header-meta { font-size: 10px; color: #b8a88a; letter-spacing: 0.08em; }
+
+  /* KPIs */
+  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #e5e2db; border-bottom: 2px solid #1a1a1a; }
+  .kpi-card { padding: 24px 24px 20px; background: #faf9f6; }
+  .kpi-label { font-size: 9px; font-weight: 500; letter-spacing: 0.14em; color: #8a8578; margin-bottom: 8px; }
+  .kpi-value { font-family: 'Newsreader', Georgia, serif; font-size: 28px; font-weight: 700; line-height: 1; letter-spacing: -0.01em; }
+  .kpi-sub { font-size: 10px; color: #a8a198; margin-top: 8px; }
+
+  /* Progress */
+  .progress-section { padding: 20px 32px; border-bottom: 1px solid #e5e2db; }
+  .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .progress-label { font-size: 10px; letter-spacing: 0.1em; color: #8a8578; }
+  .progress-pct { font-size: 11px; font-weight: 500; color: #2d6a4f; }
+  .progress-track { display: flex; height: 10px; border-radius: 2px; overflow: hidden; background: #ece9e1; }
+  .progress-closed { background: #2d6a4f; transition: width 0.6s; }
+  .progress-uc { background: #d4a843; transition: width 0.6s; }
+  .progress-legend { display: flex; gap: 24px; margin-top: 8px; font-size: 10px; color: #6b6b6b; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 1px; display: inline-block; vertical-align: middle; margin-right: 6px; }
+
+  /* Buyer breakdown */
+  .buyer-section { padding: 20px 32px; border-bottom: 1px solid #e5e2db; }
+  .buyer-section-label { font-size: 10px; letter-spacing: 0.1em; color: #8a8578; margin-bottom: 14px; }
+  .buyer-row { margin-bottom: 8px; }
+  .buyer-row-header { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
+  .buyer-name { color: #4a4a4a; }
+  .buyer-value { color: #8a8578; }
+  .buyer-bar-track { height: 5px; background: #ece9e1; border-radius: 1px; }
+  .buyer-bar-fill { height: 100%; border-radius: 1px; }
+
+  /* Filters */
+  .filter-section { padding: 20px 32px 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .filter-label { font-size: 10px; letter-spacing: 0.1em; color: #8a8578; }
+  .filter-group { display: flex; }
+  .fbtn {
+    padding: 8px 20px; border: 1px solid #d4d0c8; background: transparent;
+    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em;
+    cursor: pointer; transition: all 0.15s; color: #8a8578;
+  }
+  .fbtn:first-child { border-radius: 4px 0 0 4px; }
+  .fbtn:last-child { border-radius: 0 4px 4px 0; }
+  .fbtn.act { background: #1a1a1a; color: #faf9f6; border-color: #1a1a1a; }
+
+  /* Table */
+  .table-wrap { padding: 0 32px 32px; overflow-x: auto; }
+  .tbl { width: 100%; border-collapse: collapse; }
+  .tbl th {
+    text-align: left; padding: 10px 14px; font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #8a8578; border-bottom: 2px solid #1a1a1a; white-space: nowrap;
+  }
+  .tbl td {
+    padding: 10px 14px; font-family: 'DM Mono', monospace; font-size: 12px;
+    color: #4a4a4a; border-bottom: 1px solid #ece9e1; vertical-align: top; white-space: nowrap;
+  }
+  .tbl tbody tr:hover td { background: #f5f3ee; }
+  .tbl tfoot td { font-family: 'DM Mono', monospace; font-size: 12px; }
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+
+  /* Status badges */
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 500; letter-spacing: 0.04em; }
+  .badge-closed { background: #e8f5e9; color: #2d6a4f; border: 1px solid #c8e6c9; }
+  .badge-uc { background: #fff8e1; color: #b8860b; border: 1px solid #ffe082; }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
+  .dot-closed { background: #2d6a4f; }
+  .dot-uc { background: #d4a843; }
+  .type-resell { padding: 1px 6px; border-radius: 2px; font-size: 10px; background: #f3e8ff; color: #6b4c8a; }
+  .type-original { font-size: 10px; color: #8a8578; }
+  .cell-lot { font-weight: 500; color: #1a1a1a; }
+  .cell-price { font-weight: 500; color: #1a1a1a; }
+  .cell-dim { color: #c8c4bb; }
+  .cell-ellipsis { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Note tooltip */
+  .note-dot { cursor: pointer; color: #b8a88a; font-size: 14px; position: relative; }
+  .note-dot:hover { color: #1a1a1a; }
+  .note-tooltip {
+    display: none; position: absolute; right: 0; top: 100%; z-index: 10;
+    background: #1a1a1a; color: #faf9f6; padding: 10px 14px; border-radius: 4px;
+    font-size: 11px; line-height: 1.5; font-family: 'DM Mono', monospace;
+    min-width: 220px; max-width: 300px; white-space: normal; text-align: left;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .note-dot.open .note-tooltip { display: block; }
+
+  /* Footer */
+  .footer {
+    padding: 16px 32px 28px; border-top: 1px solid #e5e2db;
+    font-size: 10px; color: #b8a88a; text-align: center; line-height: 1.8;
+  }
+  .footer a { color: #8a8578; text-decoration: underline; }
+
+  /* Live badge */
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; background: #e8f5e9; color: #2d6a4f;
+    border-radius: 12px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #2d6a4f;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Loading */
+  .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+  .spinner { width: 36px; height: 36px; border: 3px solid #e5e2db; border-top-color: #1a1a1a; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { margin-top: 16px; font-size: 13px; color: #8a8578; }
+
+  /* Error */
+  .error { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 32px; }
+  .error h2 { font-size: 18px; color: #1a1a1a; margin-bottom: 8px; }
+  .error p { font-size: 13px; color: #8a8578; margin-bottom: 16px; }
+  .retry-btn {
+    padding: 10px 28px; background: #1a1a1a; color: #faf9f6; border: none;
+    border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 12px;
+    cursor: pointer; letter-spacing: 0.06em;
+  }
+
+  @media (max-width: 700px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .header { padding: 24px 20px 20px; }
+    .progress-section, .buyer-section, .filter-section { padding-left: 20px; padding-right: 20px; }
+    .table-wrap { padding: 0 20px 20px; }
+    .footer { padding: 16px 20px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">
+  <div class="spinner"></div>
+  <p class="loading-text mono">Loading live data from Google Sheets...</p>
+</div>
+
+<div id="error" class="error" style="display:none;">
+  <h2>Unable to load data</h2>
+  <p class="mono">Make sure the Google Sheet is shared as "Anyone with the link" (viewer).</p>
+  <button class="retry-btn" onclick="fetchData()">RETRY</button>
+</div>
+
+<div id="dashboard" style="display:none;">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <p class="mono header-sub">SYNERGY REALTY — GEORGE &amp; NOONAN GROUP</p>
+      <h1>Ventanas of Westlake</h1>
+      <p class="mono header-tag">LOT CLOSINGS &amp; PIPELINE</p>
+    </div>
+    <div class="header-right">
+      <div class="live-badge mono"><span class="live-dot"></span> LIVE</div>
+      <p class="mono header-meta" style="margin-top:6px;" id="update-time"></p>
+      <p class="mono header-meta" style="margin-top:2px;" id="header-counts"></p>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <p class="mono kpi-label">CLOSED VALUE</p>
+      <p class="kpi-value" style="color:#2d6a4f;" id="kpi-closed-value"></p>
+      <p class="mono kpi-sub" id="kpi-closed-sub"></p>
+    </div>
+    <div class="kpi-card">
+      <p class="mono kpi-label">UNDER CONTRACT</p>
+      <p class="kpi-value" style="color:#b8860b;" id="kpi-uc-value"></p>
+      <p class="mono kpi-sub" id="kpi-uc-sub"></p>
+    </div>
+    <div class="kpi-card">
+      <p class="mono kpi-label">TOTAL PIPELINE</p>
+      <p class="kpi-value" style="color:#1a1a1a;" id="kpi-total-value"></p>
+      <p class="mono kpi-sub" id="kpi-total-sub"></p>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="mono progress-label">CLOSED VS. PIPELINE</span>
+      <span class="mono progress-pct" id="progress-pct"></span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-closed" id="progress-closed-bar"></div>
+      <div class="progress-uc" id="progress-uc-bar"></div>
+    </div>
+    <div class="progress-legend mono">
+      <span><span class="legend-dot" style="background:#2d6a4f;"></span> Closed <span id="legend-closed"></span></span>
+      <span><span class="legend-dot" style="background:#d4a843;"></span> Under Contract <span id="legend-uc"></span></span>
+    </div>
+  </div>
+
+  <!-- Buyer Breakdown -->
+  <div class="buyer-section">
+    <p class="mono buyer-section-label">PENDING BY BUYER</p>
+    <div id="buyer-bars"></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-section">
+    <p class="mono filter-label">TRANSACTION DETAIL</p>
+    <div class="filter-group" id="filter-group"></div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Lot(s)</th>
+          <th class="text-center">#</th>
+          <th>Type</th>
+          <th>Seller</th>
+          <th>Buyer</th>
+          <th>Close</th>
+          <th class="text-right">Price</th>
+          <th class="text-right">Synergy %</th>
+          <th class="text-center">Note</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+      <tfoot id="table-foot"></tfoot>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer mono">
+    <p>Source: <a href="https://docs.google.com/spreadsheets/d/14ABn9-kSRCtzaFV3m58R5Y1372RTx-ljchnq3Uf2450/edit" target="_blank">Ventanas Closings Sheet</a></p>
+    <p>Auto-refreshes every 60 seconds · Synergy Realty, LLC · 221 E Southlake Blvd, Suite 100 · Southlake, TX 76092</p>
+  </div>
+</div>
+
+<script>
+const SHEET_ID = '14ABn9-kSRCtzaFV3m58R5Y1372RTx-ljchnq3Uf2450';
+const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+const BUYER_COLORS = ['#6b7c5e','#b8860b','#8b6f5c','#6b4c8a','#4a7c8c','#5c7c6b','#8c6b4a'];
+
+let allData = [];
+let currentFilter = 'All';
+
+function parseCSV(text) {
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+
+  function parseLine(line) {
+    const vals = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    vals.push(cur.trim());
+    return vals;
+  }
+
+  const headers = parseLine(lines[0]);
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = parseLine(lines[i]);
+    // Find the Status column index
+    const statusIdx = headers.findIndex(h => h.toLowerCase().includes('status'));
+    const statusVal = statusIdx >= 0 ? (vals[statusIdx] || '') : '';
+    if (statusVal !== 'Closed' && statusVal !== 'Under Contract') continue;
+
+    const obj = {};
+    headers.forEach((h, j) => { obj[h.trim()] = (vals[j] || '').trim(); });
+    rows.push(obj);
+  }
+  return rows;
+}
+
+function parseCurrency(val) {
+  if (!val) return 0;
+  return parseFloat(val.replace(/[$,]/g, '')) || 0;
+}
+
+function fmt(n) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
+}
+
+function fmtDate(d) {
+  if (!d || d === 'TBD' || d === '') return 'TBD';
+  const dt = new Date(d);
+  return isNaN(dt) ? d : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// Find column value with fuzzy header matching
+function col(row, partial) {
+  const key = Object.keys(row).find(k => k.toLowerCase().includes(partial.toLowerCase()));
+  return key ? row[key] : '';
+}
+
+function normalize(rows) {
+  return rows.map(r => ({
+    type: col(r, 'Type'),
+    lot: col(r, 'L&B') || col(r, 'L&amp;B') || col(r, 'Lot'),
+    lots: parseInt(col(r, 'Total Lots')) || 0,
+    status: col(r, 'Status'),
+    rep: col(r, 'Representing'),
+    seller: col(r, 'Seller'),
+    buyer: col(r, 'Buyer'),
+    closeDate: col(r, 'Closing Date'),
+    price: parseCurrency(col(r, 'Contract Price')),
+    grossComp: col(r, 'Gross Compensation'),
+    synergyPct: col(r, 'Synergy Compensation') || '0%',
+    note: col(r, 'Note'),
+  }));
+}
+
+function computeStats(data) {
+  const closed = data.filter(r => r.status === 'Closed');
+  const uc = data.filter(r => r.status === 'Under Contract');
+  return {
+    closedLots: closed.reduce((s, r) => s + r.lots, 0),
+    ucLots: uc.reduce((s, r) => s + r.lots, 0),
+    totalLots: data.reduce((s, r) => s + r.lots, 0),
+    closedValue: closed.reduce((s, r) => s + r.price, 0),
+    ucValue: uc.reduce((s, r) => s + r.price, 0),
+    totalValue: data.reduce((s, r) => s + r.price, 0),
+    closedCount: closed.length,
+    ucCount: uc.length,
+  };
+}
+
+function render() {
+  const stats = computeStats(allData);
+  const filtered = currentFilter === 'All' ? allData : allData.filter(r => r.status === currentFilter);
+  const closedPct = stats.totalValue > 0 ? (stats.closedValue / stats.totalValue) * 100 : 0;
+
+  // Update time
+  const now = new Date();
+  document.getElementById('update-time').textContent = 'UPDATED ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  document.getElementById('header-counts').textContent = allData.length + ' TRANSACTIONS · ' + stats.totalLots + ' LOTS';
+
+  // KPIs
+  document.getElementById('kpi-closed-value').textContent = fmt(stats.closedValue);
+  document.getElementById('kpi-closed-sub').textContent = stats.closedLots + ' lots · ' + stats.closedCount + ' txns';
+  document.getElementById('kpi-uc-value').textContent = fmt(stats.ucValue);
+  document.getElementById('kpi-uc-sub').textContent = stats.ucLots + ' lots · ' + stats.ucCount + ' txns';
+  document.getElementById('kpi-total-value').textContent = fmt(stats.totalValue);
+  document.getElementById('kpi-total-sub').textContent = stats.totalLots + ' total lots';
+
+  // Progress
+  document.getElementById('progress-pct').textContent = closedPct.toFixed(1) + '% CLOSED';
+  document.getElementById('progress-closed-bar').style.width = closedPct + '%';
+  document.getElementById('progress-uc-bar').style.width = (100 - closedPct) + '%';
+  document.getElementById('legend-closed').textContent = fmt(stats.closedValue);
+  document.getElementById('legend-uc').textContent = fmt(stats.ucValue);
+
+  // Buyer breakdown
+  const uc = allData.filter(r => r.status === 'Under Contract' && r.price > 0);
+  const groups = {};
+  uc.forEach(r => {
+    const name = r.buyer.split(',')[0].trim();
+    if (!groups[name]) groups[name] = { lots: 0, value: 0 };
+    groups[name].lots += r.lots;
+    groups[name].value += r.price;
+  });
+  const buyerList = Object.entries(groups).sort((a, b) => b[1].value - a[1].value);
+  const buyerHTML = buyerList.map(([name, d], i) => {
+    const pct = stats.ucValue > 0 ? (d.value / stats.ucValue) * 100 : 0;
+    return `<div class="buyer-row">
+      <div class="buyer-row-header mono">
+        <span class="buyer-name">${esc(name)}</span>
+        <span class="buyer-value">${fmt(d.value)} · ${d.lots} lots</span>
+      </div>
+      <div class="buyer-bar-track"><div class="buyer-bar-fill" style="width:${pct}%;background:${BUYER_COLORS[i % BUYER_COLORS.length]};"></div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('buyer-bars').innerHTML = buyerHTML;
+
+  // Filters
+  const filters = ['All', 'Closed', 'Under Contract'];
+  const filterHTML = filters.map(f => {
+    const count = f === 'All' ? allData.length : allData.filter(r => r.status === f).length;
+    return `<button class="fbtn mono ${currentFilter === f ? 'act' : ''}" onclick="setFilter('${f}')">${f} (${count})</button>`;
+  }).join('');
+  document.getElementById('filter-group').innerHTML = filterHTML;
+
+  // Table
+  const tbody = filtered.map((row, i) => {
+    const isClosed = row.status === 'Closed';
+    const badgeClass = isClosed ? 'badge-closed' : 'badge-uc';
+    const dotClass = isClosed ? 'dot-closed' : 'dot-uc';
+    const label = isClosed ? 'CLOSED' : 'UC';
+    const typeSpan = row.type === 'Resell'
+      ? `<span class="type-resell">${esc(row.type)}</span>`
+      : `<span class="type-original">${esc(row.type)}</span>`;
+    const priceCell = row.price > 0
+      ? `<td class="text-right cell-price">${fmt(row.price)}</td>`
+      : `<td class="text-right cell-dim">—</td>`;
+    const pctVal = row.synergyPct && row.synergyPct !== '0%' && row.synergyPct !== '0';
+    const pctCell = pctVal
+      ? `<td class="text-right">${esc(row.synergyPct)}</td>`
+      : `<td class="text-right cell-dim">—</td>`;
+    const noteCell = row.note
+      ? `<td class="text-center"><span class="note-dot" onclick="toggleNote(this)">●<div class="note-tooltip">${esc(row.note)}</div></span></td>`
+      : `<td class="text-center cell-dim">—</td>`;
+
+    return `<tr>
+      <td><span class="badge ${badgeClass}"><span class="badge-dot ${dotClass}"></span>${label}</span></td>
+      <td class="cell-lot">${esc(row.lot)}</td>
+      <td class="text-center">${row.lots}</td>
+      <td>${typeSpan}</td>
+      <td class="cell-ellipsis">${esc(row.seller)}</td>
+      <td class="cell-ellipsis">${esc(row.buyer)}</td>
+      <td>${fmtDate(row.closeDate)}</td>
+      ${priceCell}
+      ${pctCell}
+      ${noteCell}
+    </tr>`;
+  }).join('');
+  document.getElementById('table-body').innerHTML = tbody;
+
+  // Footer totals
+  const totalLots = filtered.reduce((s, r) => s + r.lots, 0);
+  const totalPrice = filtered.reduce((s, r) => s + r.price, 0);
+  document.getElementById('table-foot').innerHTML = `<tr>
+    <td colspan="2" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none;">TOTALS</td>
+    <td class="text-center" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none;">${totalLots}</td>
+    <td colspan="4" style="border-top:2px solid #1a1a1a;border-bottom:none;"></td>
+    <td class="text-right" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none;">${fmt(totalPrice)}</td>
+    <td style="border-top:2px solid #1a1a1a;border-bottom:none;"></td>
+    <td style="border-top:2px solid #1a1a1a;border-bottom:none;"></td>
+  </tr>`;
+}
+
+function esc(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  render();
+}
+
+function toggleNote(el) {
+  // Close all others
+  document.querySelectorAll('.note-dot.open').forEach(n => { if (n !== el) n.classList.remove('open'); });
+  el.classList.toggle('open');
+}
+
+// Close tooltips on click outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.note-dot')) {
+    document.querySelectorAll('.note-dot.open').forEach(n => n.classList.remove('open'));
+  }
+});
+
+async function fetchData() {
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('error').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'none';
+
+  try {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const parsed = parseCSV(text);
+    allData = normalize(parsed);
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    render();
+  } catch (e) {
+    console.error('Fetch error:', e);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'flex';
+  }
+}
+
+// Initial load
+fetchData();
+
+// Auto-refresh every 60 seconds
+setInterval(fetchData, 60000);
+</script>
+</body>
+</html>
