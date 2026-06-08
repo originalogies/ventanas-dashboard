@@ -7,167 +7,134 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,600;6..72,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Newsreader', Georgia, serif;
-    background: #faf9f6;
-    color: #1a1a1a;
-    min-height: 100vh;
-  }
+  body { font-family: 'Newsreader', Georgia, serif; background: #faf9f6; color: #1a1a1a; min-height: 100vh; }
   .mono { font-family: 'DM Mono', monospace; }
 
-  /* Header */
   .header { padding: 36px 32px 28px; border-bottom: 3px solid #1a1a1a; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; }
   .header-sub { font-size: 10px; letter-spacing: 0.2em; color: #8a8578; margin-bottom: 4px; }
   .header h1 { font-size: 32px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; line-height: 1.1; }
   .header-tag { font-size: 11px; color: #8a8578; margin-top: 4px; letter-spacing: 0.08em; }
-  .header-right { text-align: right; }
   .header-meta { font-size: 10px; color: #b8a88a; letter-spacing: 0.08em; }
 
-  /* KPIs */
   .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #e5e2db; border-bottom: 2px solid #1a1a1a; }
   .kpi-card { padding: 24px 24px 20px; background: #faf9f6; }
   .kpi-label { font-size: 9px; font-weight: 500; letter-spacing: 0.14em; color: #8a8578; margin-bottom: 8px; }
-  .kpi-value { font-family: 'Newsreader', Georgia, serif; font-size: 28px; font-weight: 700; line-height: 1; letter-spacing: -0.01em; }
+  .kpi-value { font-family: 'Newsreader', Georgia, serif; font-size: 28px; font-weight: 700; line-height: 1; }
   .kpi-sub { font-size: 10px; color: #a8a198; margin-top: 8px; }
 
-  /* Progress */
   .progress-section { padding: 20px 32px; border-bottom: 1px solid #e5e2db; }
   .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .progress-label { font-size: 10px; letter-spacing: 0.1em; color: #8a8578; }
-  .progress-pct { font-size: 11px; font-weight: 500; color: #2d6a4f; }
   .progress-track { display: flex; height: 10px; border-radius: 2px; overflow: hidden; background: #ece9e1; }
   .progress-closed { background: #2d6a4f; transition: width 0.6s; }
   .progress-uc { background: #d4a843; transition: width 0.6s; }
   .progress-legend { display: flex; gap: 24px; margin-top: 8px; font-size: 10px; color: #6b6b6b; }
   .legend-dot { width: 8px; height: 8px; border-radius: 1px; display: inline-block; vertical-align: middle; margin-right: 6px; }
 
-  /* Buyer breakdown */
   .buyer-section { padding: 20px 32px; border-bottom: 1px solid #e5e2db; }
-  .buyer-section-label { font-size: 10px; letter-spacing: 0.1em; color: #8a8578; margin-bottom: 14px; }
   .buyer-row { margin-bottom: 8px; }
   .buyer-row-header { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
-  .buyer-name { color: #4a4a4a; }
-  .buyer-value { color: #8a8578; }
   .buyer-bar-track { height: 5px; background: #ece9e1; border-radius: 1px; }
   .buyer-bar-fill { height: 100%; border-radius: 1px; }
 
-  /* Filters */
   .filter-section { padding: 20px 32px 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-  .filter-label { font-size: 10px; letter-spacing: 0.1em; color: #8a8578; }
   .filter-group { display: flex; }
-  .fbtn {
-    padding: 8px 20px; border: 1px solid #d4d0c8; background: transparent;
-    font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em;
-    cursor: pointer; transition: all 0.15s; color: #8a8578;
-  }
+  .fbtn { padding: 8px 20px; border: 1px solid #d4d0c8; background: transparent; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; cursor: pointer; transition: all 0.15s; color: #8a8578; }
   .fbtn:first-child { border-radius: 4px 0 0 4px; }
   .fbtn:last-child { border-radius: 0 4px 4px 0; }
   .fbtn.act { background: #1a1a1a; color: #faf9f6; border-color: #1a1a1a; }
 
-  /* Party search */
-  .party-filter { padding: 0 32px 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .party-input {
-    font-family: 'DM Mono', monospace; font-size: 12px; padding: 8px 14px;
-    border: 1px solid #d4d0c8; border-radius: 4px; background: #fff;
-    color: #1a1a1a; outline: none; width: 260px; transition: border-color 0.15s;
-  }
+  .party-filter { padding: 8px 32px 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .party-input { font-family: 'DM Mono', monospace; font-size: 12px; padding: 8px 14px; border: 1px solid #d4d0c8; border-radius: 4px; background: #fff; color: #1a1a1a; outline: none; width: 260px; }
   .party-input:focus { border-color: #1a1a1a; }
   .party-input::placeholder { color: #b8a88a; }
-  .party-clear {
-    font-family: 'DM Mono', monospace; font-size: 11px; padding: 8px 14px;
-    border: 1px solid #d4d0c8; border-radius: 4px; background: transparent;
-    color: #8a8578; cursor: pointer; transition: all 0.15s;
-  }
+  .party-clear { font-family: 'DM Mono', monospace; font-size: 11px; padding: 8px 14px; border: 1px solid #d4d0c8; border-radius: 4px; background: transparent; color: #8a8578; cursor: pointer; }
   .party-clear:hover { background: #ece9e1; }
-  .party-match { font-family: 'DM Mono', monospace; font-size: 10px; color: #8a8578; }
 
-  /* Table */
   .table-wrap { padding: 0 32px 32px; overflow-x: auto; }
   .tbl { width: 100%; border-collapse: collapse; }
-  .tbl th {
-    text-align: left; padding: 10px 14px; font-family: 'DM Mono', monospace;
-    font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
-    color: #8a8578; border-bottom: 2px solid #1a1a1a; white-space: nowrap;
-  }
-  .tbl td {
-    padding: 10px 14px; font-family: 'DM Mono', monospace; font-size: 12px;
-    color: #4a4a4a; border-bottom: 1px solid #ece9e1; vertical-align: top; white-space: nowrap;
-  }
+  .tbl th { text-align: left; padding: 10px 14px; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8578; border-bottom: 2px solid #1a1a1a; white-space: nowrap; }
+  .tbl td { padding: 10px 14px; font-family: 'DM Mono', monospace; font-size: 12px; color: #4a4a4a; border-bottom: 1px solid #ece9e1; vertical-align: top; white-space: nowrap; }
   .tbl tbody tr:hover td { background: #f5f3ee; }
+  .tbl tr.doc-row:hover td { background: transparent; }
   .tbl tfoot td { font-family: 'DM Mono', monospace; font-size: 12px; }
   .text-right { text-align: right; }
   .text-center { text-align: center; }
 
-  /* Status badges */
-  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 500; letter-spacing: 0.04em; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 500; }
   .badge-closed { background: #e8f5e9; color: #2d6a4f; border: 1px solid #c8e6c9; }
   .badge-uc { background: #fff8e1; color: #b8860b; border: 1px solid #ffe082; }
   .badge-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
-  .dot-closed { background: #2d6a4f; }
-  .dot-uc { background: #d4a843; }
-  .type-resell { padding: 1px 6px; border-radius: 2px; font-size: 10px; background: #f3e8ff; color: #6b4c8a; }
-  .type-original { font-size: 10px; color: #8a8578; }
   .cell-lot { font-weight: 500; color: #1a1a1a; }
   .cell-price { font-weight: 500; color: #1a1a1a; }
   .cell-dim { color: #c8c4bb; }
   .cell-ellipsis { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .type-resell { padding: 1px 6px; border-radius: 2px; font-size: 10px; background: #f3e8ff; color: #6b4c8a; }
+  .type-original { font-size: 10px; color: #8a8578; }
 
-  /* Note tooltip */
   .note-dot { cursor: pointer; color: #b8a88a; font-size: 14px; position: relative; }
   .note-dot:hover { color: #1a1a1a; }
-  .note-tooltip {
-    display: none; position: absolute; right: 0; top: 100%; z-index: 10;
-    background: #1a1a1a; color: #faf9f6; padding: 10px 14px; border-radius: 4px;
-    font-size: 11px; line-height: 1.5; font-family: 'DM Mono', monospace;
-    min-width: 220px; max-width: 300px; white-space: normal; text-align: left;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-  }
+  .note-tooltip { display: none; position: absolute; right: 0; top: 100%; z-index: 10; background: #1a1a1a; color: #faf9f6; padding: 10px 14px; border-radius: 4px; font-size: 11px; line-height: 1.5; font-family: 'DM Mono', monospace; min-width: 220px; max-width: 300px; white-space: normal; text-align: left; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
   .note-dot.open .note-tooltip { display: block; }
 
-  /* Footer */
-  .footer {
-    padding: 16px 32px 28px; border-top: 1px solid #e5e2db;
-    font-size: 10px; color: #b8a88a; text-align: center; line-height: 1.8;
-  }
-  .footer a { color: #8a8578; text-decoration: underline; }
+  .doc-btn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; cursor: pointer; border: 1px solid #d4d0c8; background: #fff; color: #4a4a4a; transition: all 0.15s; }
+  .doc-btn:hover { background: #1a1a1a; color: #faf9f6; border-color: #1a1a1a; }
+  .doc-btn.open { background: #1a1a1a; color: #faf9f6; border-color: #1a1a1a; }
+  .doc-panel { background: #f5f3ee; border-bottom: 2px solid #e5e2db; }
+  .doc-card { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: #fff; border-radius: 6px; border: 1px solid #e5e2db; cursor: pointer; transition: all 0.15s; }
+  .doc-card:hover { border-color: #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .doc-icon { width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .doc-name { font-family: 'DM Mono', monospace; font-size: 12px; color: #1a1a1a; font-weight: 500; }
+  .doc-type-label { font-family: 'DM Mono', monospace; font-size: 10px; color: #8a8578; margin-top: 2px; }
+  .doc-open { font-family: 'DM Mono', monospace; font-size: 10px; color: #2d6a4f; margin-left: auto; flex-shrink: 0; }
 
-  /* Live badge */
-  .live-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 3px 10px; background: #e8f5e9; color: #2d6a4f;
-    border-radius: 12px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
-  }
-  .live-dot {
-    width: 6px; height: 6px; border-radius: 50%; background: #2d6a4f;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(10,10,10,0.85); backdrop-filter: blur(4px); display: none; flex-direction: column; }
+  .modal-overlay.active { display: flex; }
+  .modal-topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #1a1a1a; border-bottom: 1px solid #333; flex-shrink: 0; }
+  .modal-doc-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+  .modal-doc-name { font-family: 'DM Mono', monospace; font-size: 13px; color: #f1f5f9; font-weight: 500; }
+  .modal-doc-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: #8a8578; margin-top: 1px; }
+  .modal-counter { font-family: 'DM Mono', monospace; font-size: 11px; color: #8a8578; margin-right: 8px; }
+  .modal-drive-link { font-family: 'DM Mono', monospace; font-size: 11px; padding: 6px 14px; border: 1px solid #444; border-radius: 4px; color: #ccc; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+  .modal-drive-link:hover { border-color: #888; color: #fff; }
+  .modal-close { width: 36px; height: 36px; border-radius: 6px; border: 1px solid #444; background: transparent; color: #ccc; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { border-color: #888; color: #fff; }
+  .modal-body { display: flex; flex: 1; overflow: hidden; }
+  .modal-sidebar { width: 240px; flex-shrink: 0; background: #141414; border-right: 1px solid #2a2a2a; overflow-y: auto; padding: 12px 0; }
+  .modal-sidebar-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; color: #666; padding: 4px 16px 10px; text-transform: uppercase; }
+  .modal-sidebar-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 16px; border: none; background: transparent; border-left: 3px solid transparent; cursor: pointer; text-align: left; transition: background 0.1s; }
+  .modal-sidebar-btn.active { background: #2a2a2a; border-left-color: #818cf8; }
+  .modal-sidebar-btn:hover { background: #222; }
+  .modal-sidebar-name { font-family: 'DM Mono', monospace; font-size: 11px; color: #999; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .modal-sidebar-btn.active .modal-sidebar-name { color: #f1f5f9; font-weight: 600; }
+  .modal-sidebar-type { font-family: 'DM Mono', monospace; font-size: 9px; color: #555; margin-top: 2px; }
+  .modal-sidebar-hint { padding: 16px; margin-top: 8px; border-top: 1px solid #2a2a2a; font-family: 'DM Mono', monospace; font-size: 9px; color: #555; line-height: 1.6; }
+  .modal-preview { flex: 1; position: relative; background: #0a0a0a; }
+  .modal-preview iframe { width: 100%; height: 100%; border: none; }
+  .modal-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.1); color: #fff; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: background 0.15s; }
+  .modal-nav:hover { background: rgba(255,255,255,0.25); }
+  .modal-nav.prev { left: 12px; }
+  .modal-nav.next { right: 12px; }
 
-  /* Loading */
+  .live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; background: #e8f5e9; color: #2d6a4f; border-radius: 12px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #2d6a4f; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
   .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
   .spinner { width: 36px; height: 36px; border: 3px solid #e5e2db; border-top-color: #1a1a1a; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { margin-top: 16px; font-size: 13px; color: #8a8578; }
 
-  /* Error */
   .error { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 32px; }
-  .error h2 { font-size: 18px; color: #1a1a1a; margin-bottom: 8px; }
-  .error p { font-size: 13px; color: #8a8578; margin-bottom: 16px; }
-  .retry-btn {
-    padding: 10px 28px; background: #1a1a1a; color: #faf9f6; border: none;
-    border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 12px;
-    cursor: pointer; letter-spacing: 0.06em;
-  }
+  .retry-btn { padding: 10px 28px; background: #1a1a1a; color: #faf9f6; border: none; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; }
+
+  .footer { padding: 16px 32px 28px; border-top: 1px solid #e5e2db; font-size: 10px; color: #b8a88a; text-align: center; line-height: 1.8; }
+  .footer a { color: #8a8578; text-decoration: underline; }
 
   @media (max-width: 700px) {
     .kpi-grid { grid-template-columns: 1fr; }
-    .header { padding: 24px 20px 20px; }
-    .progress-section, .buyer-section, .filter-section { padding-left: 20px; padding-right: 20px; }
+    .header, .progress-section, .buyer-section, .filter-section, .party-filter { padding-left: 20px; padding-right: 20px; }
     .table-wrap { padding: 0 20px 20px; }
-    .footer { padding: 16px 20px 24px; }
+    .modal-sidebar { display: none; }
   }
 </style>
 </head>
@@ -175,111 +142,73 @@
 
 <div id="loading" class="loading">
   <div class="spinner"></div>
-  <p class="loading-text mono">Loading live data from Google Sheets...</p>
+  <p class="mono" style="margin-top:16px;font-size:13px;color:#8a8578;">Loading live data from Google Sheets...</p>
 </div>
-
 <div id="error" class="error" style="display:none;">
-  <h2>Unable to load data</h2>
-  <p class="mono">Make sure the Google Sheet is shared as "Anyone with the link" (viewer).</p>
+  <h2 style="font-size:18px;color:#1a1a1a;margin-bottom:8px;">Unable to load data</h2>
+  <p class="mono" style="font-size:13px;color:#8a8578;margin-bottom:16px;">Make sure the Google Sheet is shared as "Anyone with the link" (viewer).</p>
   <button class="retry-btn" onclick="fetchData()">RETRY</button>
 </div>
 
 <div id="dashboard" style="display:none;">
-
-  <!-- Header -->
   <div class="header">
     <div>
       <p class="mono header-sub">SYNERGY REALTY — GEORGE &amp; NOONAN GROUP</p>
       <h1>Ventanas of Westlake</h1>
       <p class="mono header-tag">LOT CLOSINGS &amp; PIPELINE</p>
     </div>
-    <div class="header-right">
+    <div style="text-align:right;">
       <div class="live-badge mono"><span class="live-dot"></span> LIVE</div>
       <p class="mono header-meta" style="margin-top:6px;" id="update-time"></p>
       <p class="mono header-meta" style="margin-top:2px;" id="header-counts"></p>
     </div>
   </div>
-
-  <!-- KPIs -->
   <div class="kpi-grid">
-    <div class="kpi-card">
-      <p class="mono kpi-label">CLOSED VALUE</p>
-      <p class="kpi-value" style="color:#2d6a4f;" id="kpi-closed-value"></p>
-      <p class="mono kpi-sub" id="kpi-closed-sub"></p>
-    </div>
-    <div class="kpi-card">
-      <p class="mono kpi-label">UNDER CONTRACT</p>
-      <p class="kpi-value" style="color:#b8860b;" id="kpi-uc-value"></p>
-      <p class="mono kpi-sub" id="kpi-uc-sub"></p>
-    </div>
-    <div class="kpi-card">
-      <p class="mono kpi-label">TOTAL PIPELINE</p>
-      <p class="kpi-value" style="color:#1a1a1a;" id="kpi-total-value"></p>
-      <p class="mono kpi-sub" id="kpi-total-sub"></p>
-    </div>
+    <div class="kpi-card"><p class="mono kpi-label">CLOSED VALUE</p><p class="kpi-value" style="color:#2d6a4f;" id="kpi-closed-value"></p><p class="mono kpi-sub" id="kpi-closed-sub"></p></div>
+    <div class="kpi-card"><p class="mono kpi-label">UNDER CONTRACT</p><p class="kpi-value" style="color:#b8860b;" id="kpi-uc-value"></p><p class="mono kpi-sub" id="kpi-uc-sub"></p></div>
+    <div class="kpi-card"><p class="mono kpi-label">TOTAL PIPELINE</p><p class="kpi-value" style="color:#1a1a1a;" id="kpi-total-value"></p><p class="mono kpi-sub" id="kpi-total-sub"></p></div>
   </div>
-
-  <!-- Progress -->
   <div class="progress-section">
-    <div class="progress-header">
-      <span class="mono progress-label">CLOSED VS. PIPELINE</span>
-      <span class="mono progress-pct" id="progress-pct"></span>
-    </div>
-    <div class="progress-track">
-      <div class="progress-closed" id="progress-closed-bar"></div>
-      <div class="progress-uc" id="progress-uc-bar"></div>
-    </div>
-    <div class="progress-legend mono">
-      <span><span class="legend-dot" style="background:#2d6a4f;"></span> Closed <span id="legend-closed"></span></span>
-      <span><span class="legend-dot" style="background:#d4a843;"></span> Under Contract <span id="legend-uc"></span></span>
-    </div>
+    <div class="progress-header"><span class="mono" style="font-size:10px;letter-spacing:0.1em;color:#8a8578;">CLOSED VS. PIPELINE</span><span class="mono" style="font-size:11px;font-weight:500;color:#2d6a4f;" id="progress-pct"></span></div>
+    <div class="progress-track"><div class="progress-closed" id="bar-closed"></div><div class="progress-uc" id="bar-uc"></div></div>
+    <div class="progress-legend mono"><span><span class="legend-dot" style="background:#2d6a4f;"></span> Closed <span id="leg-closed"></span></span><span><span class="legend-dot" style="background:#d4a843;"></span> Under Contract <span id="leg-uc"></span></span></div>
   </div>
-
-  <!-- Buyer Breakdown -->
-  <div class="buyer-section">
-    <p class="mono buyer-section-label">PENDING BY BUYER</p>
-    <div id="buyer-bars"></div>
-  </div>
-
-  <!-- Filters -->
-  <div class="filter-section">
-    <p class="mono filter-label">TRANSACTION DETAIL</p>
-    <div class="filter-group" id="filter-group"></div>
-  </div>
-
-  <!-- Party Search -->
-  <div class="party-filter">
-    <input type="text" id="party-input" class="party-input" placeholder="Filter by seller or buyer name..." oninput="setParty(this.value)">
-    <button class="party-clear" id="party-clear" onclick="clearParty()" style="display:none;">Clear</button>
-    <span class="party-match" id="party-match"></span>
-  </div>
-
-  <!-- Table -->
+  <div class="buyer-section"><p class="mono" style="font-size:10px;letter-spacing:0.1em;color:#8a8578;margin-bottom:14px;">PENDING BY BUYER</p><div id="buyer-bars"></div></div>
+  <div class="filter-section"><p class="mono" style="font-size:10px;letter-spacing:0.1em;color:#8a8578;">TRANSACTION DETAIL</p><div class="filter-group" id="filter-group"></div></div>
+  <div class="party-filter"><input type="text" id="party-input" class="party-input" placeholder="Filter by seller or buyer name..." oninput="setParty(this.value)"><button class="party-clear" id="party-clear" onclick="clearParty()" style="display:none;">Clear</button><span class="mono" style="font-size:10px;color:#8a8578;" id="party-match"></span></div>
   <div class="table-wrap">
     <table class="tbl">
-      <thead>
-        <tr>
-          <th>Status</th>
-          <th>Lot(s)</th>
-          <th class="text-center">#</th>
-          <th>Type</th>
-          <th>Seller</th>
-          <th>Buyer</th>
-          <th>Close</th>
-          <th class="text-right">Price</th>
-          <th class="text-right">Synergy %</th>
-          <th class="text-center">Note</th>
-        </tr>
-      </thead>
+      <thead><tr><th>Status</th><th>Lot(s)</th><th class="text-center">#</th><th>Type</th><th>Seller</th><th>Buyer</th><th>Close</th><th class="text-right">Price</th><th class="text-right">Synergy %</th><th class="text-center">Note</th><th class="text-center">Docs</th></tr></thead>
       <tbody id="table-body"></tbody>
       <tfoot id="table-foot"></tfoot>
     </table>
   </div>
-
-  <!-- Footer -->
   <div class="footer mono">
     <p>Source: <a href="https://docs.google.com/spreadsheets/d/14ABn9-kSRCtzaFV3m58R5Y1372RTx-ljchnq3Uf2450/edit" target="_blank">Ventanas Closings Sheet</a></p>
     <p>Auto-refreshes every 60 seconds · Synergy Realty, LLC · 221 E Southlake Blvd, Suite 100 · Southlake, TX 76092</p>
+  </div>
+</div>
+
+<!-- Document Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="modal-doc-icon" id="modal-icon"></div>
+      <div><div class="modal-doc-name" id="modal-name"></div><div class="modal-doc-sub" id="modal-sub"></div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="modal-counter" id="modal-counter"></span>
+      <a class="modal-drive-link" id="modal-drive-link" href="#" target="_blank">Open in Drive ↗</a>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="modal-sidebar" id="modal-sidebar"></div>
+    <div class="modal-preview">
+      <iframe id="modal-iframe" src="" title="Document Preview" allow="autoplay"></iframe>
+      <button class="modal-nav prev" id="modal-prev" onclick="modalPrev()">‹</button>
+      <button class="modal-nav next" id="modal-next" onclick="modalNext()">›</button>
+    </div>
   </div>
 </div>
 
@@ -287,37 +216,44 @@
 const SHEET_ID = '14ABn9-kSRCtzaFV3m58R5Y1372RTx-ljchnq3Uf2450';
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 const BUYER_COLORS = ['#6b7c5e','#b8860b','#8b6f5c','#6b4c8a','#4a7c8c','#5c7c6b','#8c6b4a'];
+const DOC_STYLES = {
+  Contract: { icon: '📄', color: '#2d6a4f', bg: '#e8f5e9' },
+  Survey:   { icon: '📐', color: '#b8860b', bg: '#fff8e1' },
+  Amendment:{ icon: '📝', color: '#e65100', bg: '#fff3e0' },
+  Closing:  { icon: '✅', color: '#1565c0', bg: '#e3f2fd' },
+  Other:    { icon: '📎', color: '#6b4c8a', bg: '#f3e8ff' },
+};
 
 let allData = [];
 let currentFilter = 'All';
 let partySearch = '';
+let modalDocs = [];
+let modalIdx = 0;
+let modalLot = '';
+let modalType = '';
+
+function parseLine(line) {
+  const vals = []; let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') inQ = !inQ;
+    else if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+    else cur += ch;
+  }
+  vals.push(cur.trim());
+  return vals;
+}
 
 function parseCSV(text) {
   const lines = text.split('\n').filter(l => l.trim());
   if (lines.length < 2) return [];
-
-  function parseLine(line) {
-    const vals = [];
-    let cur = '', inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      const ch = line[i];
-      if (ch === '"') { inQ = !inQ; }
-      else if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
-      else { cur += ch; }
-    }
-    vals.push(cur.trim());
-    return vals;
-  }
-
   const headers = parseLine(lines[0]);
   const rows = [];
   for (let i = 1; i < lines.length; i++) {
     const vals = parseLine(lines[i]);
-    // Find the Status column index
-    const statusIdx = headers.findIndex(h => h.toLowerCase().includes('status'));
-    const statusVal = statusIdx >= 0 ? (vals[statusIdx] || '') : '';
-    if (statusVal !== 'Closed' && statusVal !== 'Under Contract') continue;
-
+    const si = headers.findIndex(h => h.toLowerCase().includes('status'));
+    const sv = si >= 0 ? (vals[si] || '') : '';
+    if (sv !== 'Closed' && sv !== 'Under Contract') continue;
     const obj = {};
     headers.forEach((h, j) => { obj[h.trim()] = (vals[j] || '').trim(); });
     rows.push(obj);
@@ -325,244 +261,252 @@ function parseCSV(text) {
   return rows;
 }
 
-function parseCurrency(val) {
-  if (!val) return 0;
-  return parseFloat(val.replace(/[$,]/g, '')) || 0;
-}
-
-function fmt(n) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n);
-}
-
-function fmtDate(d) {
-  if (!d || d === 'TBD' || d === '') return 'TBD';
-  const dt = new Date(d);
-  return isNaN(dt) ? d : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
-
-// Find column value with fuzzy header matching
 function col(row, partial) {
   const key = Object.keys(row).find(k => k.toLowerCase().includes(partial.toLowerCase()));
   return key ? row[key] : '';
 }
 
+function guessDocType(name) {
+  const n = name.toLowerCase();
+  if (n.includes('contract')) return 'Contract';
+  if (n.includes('survey') || n.includes('plat')) return 'Survey';
+  if (n.includes('amendment') || n.includes('addendum') || n.includes('assignment')) return 'Amendment';
+  if (n.includes('closing') || n.includes('settlement') || n.includes('hud')) return 'Closing';
+  return 'Other';
+}
+
+function parseDocs(str) {
+  if (!str || !str.trim()) return [];
+  return str.split(';').map(entry => {
+    const parts = entry.split('|');
+    if (parts.length < 2) return null;
+    const name = parts[0].trim();
+    const url = parts.slice(1).join('|').trim();
+    return { name, url, type: guessDocType(name) };
+  }).filter(Boolean);
+}
+
+function drivePreviewUrl(url) {
+  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? `https://drive.google.com/file/d/${m[1]}/preview` : url;
+}
+
+function parseCurrency(val) { return val ? parseFloat(val.replace(/[$,]/g, '')) || 0 : 0; }
+function fmt(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n); }
+function fmtDate(d) { if (!d || d === 'TBD') return 'TBD'; const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
 function normalize(rows) {
   return rows.map(r => ({
-    type: col(r, 'Type'),
-    lot: col(r, 'L&B') || col(r, 'L&amp;B') || col(r, 'Lot'),
-    lots: parseInt(col(r, 'Total Lots')) || 0,
-    status: col(r, 'Status'),
-    rep: col(r, 'Representing'),
-    seller: col(r, 'Seller'),
-    buyer: col(r, 'Buyer'),
-    closeDate: col(r, 'Closing Date'),
-    price: parseCurrency(col(r, 'Contract Price')),
-    grossComp: col(r, 'Gross Compensation'),
+    type: col(r, 'Type'), lot: col(r, 'L&B') || col(r, 'L&amp;B'),
+    lots: parseInt(col(r, 'Total Lots')) || 0, status: col(r, 'Status'),
+    seller: col(r, 'Seller'), buyer: col(r, 'Buyer'),
+    closeDate: col(r, 'Closing Date'), price: parseCurrency(col(r, 'Contract Price')),
     synergyPct: col(r, 'Synergy Compensation') || '0%',
-    note: col(r, 'Note'),
+    note: col(r, 'Note'), docs: parseDocs(col(r, 'Document')),
   }));
 }
 
-function computeStats(data) {
-  const closed = data.filter(r => r.status === 'Closed');
-  const uc = data.filter(r => r.status === 'Under Contract');
-  return {
-    closedLots: closed.reduce((s, r) => s + r.lots, 0),
-    ucLots: uc.reduce((s, r) => s + r.lots, 0),
-    totalLots: data.reduce((s, r) => s + r.lots, 0),
-    closedValue: closed.reduce((s, r) => s + r.price, 0),
-    ucValue: uc.reduce((s, r) => s + r.price, 0),
-    totalValue: data.reduce((s, r) => s + r.price, 0),
-    closedCount: closed.length,
-    ucCount: uc.length,
-  };
+function getFiltered() {
+  let f = currentFilter === 'All' ? allData : allData.filter(r => r.status === currentFilter);
+  if (partySearch) {
+    const q = partySearch.toLowerCase();
+    f = f.filter(r => r.seller.toLowerCase().includes(q) || r.buyer.toLowerCase().includes(q));
+  }
+  return f;
 }
 
 function render() {
-  const stats = computeStats(allData);
-  let filtered = currentFilter === 'All' ? allData : allData.filter(r => r.status === currentFilter);
-  
-  // Apply party search
-  if (partySearch) {
-    const q = partySearch.toLowerCase();
-    filtered = filtered.filter(r => 
-      r.seller.toLowerCase().includes(q) || r.buyer.toLowerCase().includes(q)
-    );
-  }
-  
-  const closedPct = stats.totalValue > 0 ? (stats.closedValue / stats.totalValue) * 100 : 0;
+  const closed = allData.filter(r => r.status === 'Closed'), uc = allData.filter(r => r.status === 'Under Contract');
+  const cV = closed.reduce((s,r)=>s+r.price,0), uV = uc.reduce((s,r)=>s+r.price,0), tV = cV+uV;
+  const cL = closed.reduce((s,r)=>s+r.lots,0), uL = uc.reduce((s,r)=>s+r.lots,0);
+  const pct = tV > 0 ? (cV/tV)*100 : 0;
+  const filtered = getFiltered();
 
-  // Party match count
-  const matchEl = document.getElementById('party-match');
-  const clearEl = document.getElementById('party-clear');
-  if (partySearch) {
-    matchEl.textContent = filtered.length + ' matching transaction' + (filtered.length !== 1 ? 's' : '');
-    clearEl.style.display = 'inline-block';
-  } else {
-    matchEl.textContent = '';
-    clearEl.style.display = 'none';
-  }
-
-  // Update time
-  const now = new Date();
-  document.getElementById('update-time').textContent = 'UPDATED ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  document.getElementById('header-counts').textContent = allData.length + ' TRANSACTIONS · ' + stats.totalLots + ' LOTS';
-
-  // KPIs
-  document.getElementById('kpi-closed-value').textContent = fmt(stats.closedValue);
-  document.getElementById('kpi-closed-sub').textContent = stats.closedLots + ' lots · ' + stats.closedCount + ' txns';
-  document.getElementById('kpi-uc-value').textContent = fmt(stats.ucValue);
-  document.getElementById('kpi-uc-sub').textContent = stats.ucLots + ' lots · ' + stats.ucCount + ' txns';
-  document.getElementById('kpi-total-value').textContent = fmt(stats.totalValue);
-  document.getElementById('kpi-total-sub').textContent = stats.totalLots + ' total lots';
-
-  // Progress
-  document.getElementById('progress-pct').textContent = closedPct.toFixed(1) + '% CLOSED';
-  document.getElementById('progress-closed-bar').style.width = closedPct + '%';
-  document.getElementById('progress-uc-bar').style.width = (100 - closedPct) + '%';
-  document.getElementById('legend-closed').textContent = fmt(stats.closedValue);
-  document.getElementById('legend-uc').textContent = fmt(stats.ucValue);
+  document.getElementById('update-time').textContent = 'UPDATED ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  document.getElementById('header-counts').textContent = allData.length + ' TRANSACTIONS · ' + (cL+uL) + ' LOTS';
+  document.getElementById('kpi-closed-value').textContent = fmt(cV);
+  document.getElementById('kpi-closed-sub').textContent = cL+' lots · '+closed.length+' txns';
+  document.getElementById('kpi-uc-value').textContent = fmt(uV);
+  document.getElementById('kpi-uc-sub').textContent = uL+' lots · '+uc.length+' txns';
+  document.getElementById('kpi-total-value').textContent = fmt(tV);
+  document.getElementById('kpi-total-sub').textContent = (cL+uL)+' total lots';
+  document.getElementById('progress-pct').textContent = pct.toFixed(1)+'% CLOSED';
+  document.getElementById('bar-closed').style.width = pct+'%';
+  document.getElementById('bar-uc').style.width = (100-pct)+'%';
+  document.getElementById('leg-closed').textContent = fmt(cV);
+  document.getElementById('leg-uc').textContent = fmt(uV);
 
   // Buyer breakdown
-  const uc = allData.filter(r => r.status === 'Under Contract' && r.price > 0);
   const groups = {};
-  uc.forEach(r => {
-    const name = r.buyer.split(',')[0].trim();
-    if (!groups[name]) groups[name] = { lots: 0, value: 0 };
-    groups[name].lots += r.lots;
-    groups[name].value += r.price;
+  uc.filter(r=>r.price>0).forEach(r => {
+    const n = r.buyer.split(',')[0].trim();
+    if (!groups[n]) groups[n]={lots:0,value:0};
+    groups[n].lots += r.lots; groups[n].value += r.price;
   });
-  const buyerList = Object.entries(groups).sort((a, b) => b[1].value - a[1].value);
-  const buyerHTML = buyerList.map(([name, d], i) => {
-    const pct = stats.ucValue > 0 ? (d.value / stats.ucValue) * 100 : 0;
-    return `<div class="buyer-row">
-      <div class="buyer-row-header mono">
-        <span class="buyer-name">${esc(name)}</span>
-        <span class="buyer-value">${fmt(d.value)} · ${d.lots} lots</span>
-      </div>
-      <div class="buyer-bar-track"><div class="buyer-bar-fill" style="width:${pct}%;background:${BUYER_COLORS[i % BUYER_COLORS.length]};"></div></div>
-    </div>`;
+  document.getElementById('buyer-bars').innerHTML = Object.entries(groups).sort((a,b)=>b[1].value-a[1].value).map(([n,d],i) => {
+    const p = uV>0?(d.value/uV)*100:0;
+    return `<div class="buyer-row"><div class="buyer-row-header mono"><span style="color:#4a4a4a">${esc(n)}</span><span style="color:#8a8578">${fmt(d.value)} · ${d.lots} lots</span></div><div class="buyer-bar-track"><div class="buyer-bar-fill" style="width:${p}%;background:${BUYER_COLORS[i%BUYER_COLORS.length]};"></div></div></div>`;
   }).join('');
-  document.getElementById('buyer-bars').innerHTML = buyerHTML;
 
   // Filters
-  const filters = ['All', 'Closed', 'Under Contract'];
-  const filterHTML = filters.map(f => {
-    const count = f === 'All' ? allData.length : allData.filter(r => r.status === f).length;
-    return `<button class="fbtn mono ${currentFilter === f ? 'act' : ''}" onclick="setFilter('${f}')">${f} (${count})</button>`;
+  document.getElementById('filter-group').innerHTML = ['All','Closed','Under Contract'].map(f => {
+    const c = f==='All'?allData.length:allData.filter(r=>r.status===f).length;
+    return `<button class="fbtn mono ${currentFilter===f?'act':''}" onclick="setFilter('${f}')">${f} (${c})</button>`;
   }).join('');
-  document.getElementById('filter-group').innerHTML = filterHTML;
+
+  // Party
+  const pm = document.getElementById('party-match'), pc = document.getElementById('party-clear');
+  if (partySearch) { pm.textContent=filtered.length+' match'+(filtered.length!==1?'es':''); pc.style.display='inline-block'; }
+  else { pm.textContent=''; pc.style.display='none'; }
 
   // Table
-  const tbody = filtered.map((row, i) => {
-    const isClosed = row.status === 'Closed';
-    const badgeClass = isClosed ? 'badge-closed' : 'badge-uc';
-    const dotClass = isClosed ? 'dot-closed' : 'dot-uc';
-    const label = isClosed ? 'CLOSED' : 'UC';
-    const typeSpan = row.type === 'Resell'
-      ? `<span class="type-resell">${esc(row.type)}</span>`
-      : `<span class="type-original">${esc(row.type)}</span>`;
-    const priceCell = row.price > 0
-      ? `<td class="text-right cell-price">${fmt(row.price)}</td>`
-      : `<td class="text-right cell-dim">—</td>`;
-    const pctVal = row.synergyPct && row.synergyPct !== '0%' && row.synergyPct !== '0';
-    const pctCell = pctVal
-      ? `<td class="text-right">${esc(row.synergyPct)}</td>`
-      : `<td class="text-right cell-dim">—</td>`;
-    const noteCell = row.note
-      ? `<td class="text-center"><span class="note-dot" onclick="toggleNote(this)">●<div class="note-tooltip">${esc(row.note)}</div></span></td>`
+  document.getElementById('table-body').innerHTML = filtered.map((row,i) => {
+    const isClosed = row.status==='Closed';
+    const bc = isClosed?'badge-closed':'badge-uc';
+    const dc = isClosed?'dot-closed':'dot-uc';
+    const lbl = isClosed?'CLOSED':'UC';
+    const ts = row.type==='Resell'?`<span class="type-resell">${esc(row.type)}</span>`:`<span class="type-original">${esc(row.type)}</span>`;
+    const pc2 = row.price>0?`<td class="text-right cell-price">${fmt(row.price)}</td>`:`<td class="text-right cell-dim">—</td>`;
+    const pv = row.synergyPct&&row.synergyPct!=='0%'&&row.synergyPct!=='0';
+    const pctC = pv?`<td class="text-right">${esc(row.synergyPct)}</td>`:`<td class="text-right cell-dim">—</td>`;
+    const noteC = row.note?`<td class="text-center"><span class="note-dot" onclick="toggleNote(this)">●<div class="note-tooltip">${esc(row.note)}</div></span></td>`:`<td class="text-center cell-dim">—</td>`;
+    const docC = row.docs.length>0
+      ? `<td class="text-center"><button class="doc-btn" onclick="toggleDocs(this,${i})">📁 ${row.docs.length}</button></td>`
       : `<td class="text-center cell-dim">—</td>`;
 
-    return `<tr>
-      <td><span class="badge ${badgeClass}"><span class="badge-dot ${dotClass}"></span>${label}</span></td>
-      <td class="cell-lot">${esc(row.lot)}</td>
-      <td class="text-center">${row.lots}</td>
-      <td>${typeSpan}</td>
-      <td class="cell-ellipsis">${esc(row.seller)}</td>
-      <td class="cell-ellipsis">${esc(row.buyer)}</td>
-      <td>${fmtDate(row.closeDate)}</td>
-      ${priceCell}
-      ${pctCell}
-      ${noteCell}
-    </tr>`;
-  }).join('');
-  document.getElementById('table-body').innerHTML = tbody;
+    let html = `<tr>${'<td><span class="badge '+bc+'"><span class="badge-dot '+dc+'"></span>'+lbl+'</span></td>'}
+      <td class="cell-lot">${esc(row.lot)}</td><td class="text-center">${row.lots}</td><td>${ts}</td>
+      <td class="cell-ellipsis">${esc(row.seller)}</td><td class="cell-ellipsis">${esc(row.buyer)}</td>
+      <td>${fmtDate(row.closeDate)}</td>${pc2}${pctC}${noteC}${docC}</tr>`;
 
-  // Footer totals
-  const totalLots = filtered.reduce((s, r) => s + r.lots, 0);
-  const totalPrice = filtered.reduce((s, r) => s + r.price, 0);
+    // Docs panel (hidden by default)
+    if (row.docs.length > 0) {
+      const cards = row.docs.map((d,j) => {
+        const s = DOC_STYLES[d.type]||DOC_STYLES.Other;
+        return `<div class="doc-card" onclick="openModal(${i},${j})"><div class="doc-icon" style="background:${s.bg};color:${s.color}">${s.icon}</div><div style="min-width:0"><div class="doc-name">${esc(d.name)}</div><div class="doc-type-label">${d.type} · Click to preview</div></div><span class="doc-open">View →</span></div>`;
+      }).join('');
+      html += `<tr class="doc-row" id="docs-panel-${i}" style="display:none;"><td colspan="11" class="doc-panel" style="padding:16px 20px;">
+        <p class="mono" style="font-size:10px;letter-spacing:0.1em;color:#8a8578;margin:0 0 12px;">DOCUMENTS — LOT ${esc(row.lot)} (${esc(row.type)}) · ${row.docs.length} file${row.docs.length!==1?'s':''}</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;">${cards}</div></td></tr>`;
+    }
+    return html;
+  }).join('');
+
+  const tLots = filtered.reduce((s,r)=>s+r.lots,0), tPrice = filtered.reduce((s,r)=>s+r.price,0);
   document.getElementById('table-foot').innerHTML = `<tr>
     <td colspan="2" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none;">TOTALS</td>
-    <td class="text-center" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none;">${totalLots}</td>
+    <td class="text-center" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none;">${tLots}</td>
     <td colspan="4" style="border-top:2px solid #1a1a1a;border-bottom:none;"></td>
-    <td class="text-right" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none;">${fmt(totalPrice)}</td>
-    <td style="border-top:2px solid #1a1a1a;border-bottom:none;"></td>
-    <td style="border-top:2px solid #1a1a1a;border-bottom:none;"></td>
-  </tr>`;
+    <td class="text-right" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none;">${fmt(tPrice)}</td>
+    <td colspan="3" style="border-top:2px solid #1a1a1a;border-bottom:none;"></td></tr>`;
 }
 
-function esc(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-function setFilter(f) {
-  currentFilter = f;
-  render();
-}
-
-function setParty(val) {
-  partySearch = val.trim();
-  render();
-}
-
-function clearParty() {
-  partySearch = '';
-  document.getElementById('party-input').value = '';
-  render();
-}
+function setFilter(f) { currentFilter=f; render(); }
+function setParty(v) { partySearch=v.trim(); render(); }
+function clearParty() { partySearch=''; document.getElementById('party-input').value=''; render(); }
 
 function toggleNote(el) {
-  // Close all others
-  document.querySelectorAll('.note-dot.open').forEach(n => { if (n !== el) n.classList.remove('open'); });
+  document.querySelectorAll('.note-dot.open').forEach(n=>{if(n!==el)n.classList.remove('open');});
   el.classList.toggle('open');
 }
+function toggleDocs(btn, idx) {
+  const panel = document.getElementById('docs-panel-'+idx);
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  // Close all
+  document.querySelectorAll('[id^="docs-panel-"]').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.doc-btn.open').forEach(b=>b.classList.remove('open'));
+  if (!isOpen) { panel.style.display=''; btn.classList.add('open'); }
+}
 
-// Close tooltips on click outside
 document.addEventListener('click', function(e) {
-  if (!e.target.closest('.note-dot')) {
-    document.querySelectorAll('.note-dot.open').forEach(n => n.classList.remove('open'));
-  }
+  if (!e.target.closest('.note-dot')) document.querySelectorAll('.note-dot.open').forEach(n=>n.classList.remove('open'));
 });
 
+// ─── Modal ───
+function openModal(rowIdx, docIdx) {
+  const filtered = getFiltered();
+  const row = filtered[rowIdx];
+  if (!row || !row.docs.length) return;
+  modalDocs = row.docs; modalIdx = docIdx; modalLot = row.lot; modalType = row.type;
+  renderModal();
+  document.getElementById('modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+  document.getElementById('modal-iframe').src = '';
+  document.body.style.overflow = '';
+}
+
+function modalPrev() { modalIdx = modalIdx > 0 ? modalIdx - 1 : modalDocs.length - 1; renderModal(); }
+function modalNext() { modalIdx = modalIdx < modalDocs.length - 1 ? modalIdx + 1 : 0; renderModal(); }
+
+function renderModal() {
+  const doc = modalDocs[modalIdx];
+  const s = DOC_STYLES[doc.type] || DOC_STYLES.Other;
+  document.getElementById('modal-icon').innerHTML = s.icon;
+  document.getElementById('modal-icon').style.background = s.bg;
+  document.getElementById('modal-icon').style.color = s.color;
+  document.getElementById('modal-name').textContent = doc.name;
+  document.getElementById('modal-sub').textContent = 'Lot ' + modalLot + ' · ' + modalType + ' · ' + doc.type;
+  document.getElementById('modal-counter').textContent = (modalIdx+1) + ' / ' + modalDocs.length;
+  document.getElementById('modal-drive-link').href = doc.url;
+  document.getElementById('modal-iframe').src = drivePreviewUrl(doc.url);
+
+  // Nav visibility
+  document.getElementById('modal-prev').style.display = modalDocs.length > 1 ? '' : 'none';
+  document.getElementById('modal-next').style.display = modalDocs.length > 1 ? '' : 'none';
+
+  // Sidebar
+  document.getElementById('modal-sidebar').innerHTML =
+    `<p class="modal-sidebar-label">Documents (${modalDocs.length})</p>` +
+    modalDocs.map((d,i) => {
+      const st = DOC_STYLES[d.type]||DOC_STYLES.Other;
+      return `<button class="modal-sidebar-btn ${i===modalIdx?'active':''}" onclick="modalIdx=${i};renderModal();">
+        <span style="font-size:14px">${st.icon}</span>
+        <div style="min-width:0"><div class="modal-sidebar-name">${esc(d.name)}</div><div class="modal-sidebar-type">${d.type}</div></div>
+      </button>`;
+    }).join('') +
+    `<div class="modal-sidebar-hint">← → Arrow keys to navigate<br>ESC to close</div>`;
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('modal').classList.contains('active')) return;
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'ArrowLeft') modalPrev();
+  if (e.key === 'ArrowRight') modalNext();
+});
+
+// Click outside to close modal
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ─── Data Fetch ───
 async function fetchData() {
   document.getElementById('loading').style.display = 'flex';
   document.getElementById('error').style.display = 'none';
   document.getElementById('dashboard').style.display = 'none';
-
   try {
     const res = await fetch(CSV_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!res.ok) throw new Error('HTTP '+res.status);
     const text = await res.text();
-    const parsed = parseCSV(text);
-    allData = normalize(parsed);
-
+    allData = normalize(parseCSV(text));
     document.getElementById('loading').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     render();
-  } catch (e) {
-    console.error('Fetch error:', e);
+  } catch(e) {
+    console.error(e);
     document.getElementById('loading').style.display = 'none';
     document.getElementById('error').style.display = 'flex';
   }
 }
 
-// Initial load
 fetchData();
-
-// Auto-refresh every 60 seconds
 setInterval(fetchData, 60000);
 </script>
 </body>
