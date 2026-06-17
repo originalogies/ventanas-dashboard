@@ -42,20 +42,24 @@
 body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg);min-height:100vh;transition:background .3s,color .3s}
 .m{font-family:'DM Mono',monospace}
 
-.hdr{padding:28px 32px 24px;border-bottom:3px solid var(--fg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+.hdr{padding:28px 32px 24px;border-bottom:none;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;background:#1a1a1a}
 .hdr-logos{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-.hdr-logos img{height:44px;filter:var(--logo-filter);transition:filter .3s}
+.hdr-logos img{height:44px;transition:filter .3s}
+.hdr-logos .logo-invert{filter:invert(1)}
 .hdr-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .hdr-controls{display:flex;align-items:center;gap:8px}
+.hdr .live-badge{background:rgba(110,231,183,.15);color:#6ee7b7;border:1px solid rgba(110,231,183,.2)}
+.hdr .live-dot{background:#6ee7b7}
+.hdr #update-time{color:rgba(255,255,255,.4)}
 
 /* Dark mode toggle */
-.theme-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border2);background:var(--card);color:var(--fg2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.theme-btn:hover{border-color:var(--fg);color:var(--fg)}
+.theme-btn{width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.7);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.theme-btn:hover{border-color:rgba(255,255,255,.5);color:#fff}
 
 /* Column visibility */
 .col-menu-wrap{position:relative}
-.col-btn{padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--card);font-family:'DM Mono',monospace;font-size:10px;color:var(--fg3);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s}
-.col-btn:hover{border-color:var(--fg);color:var(--fg)}
+.col-btn{padding:6px 12px;border:1px solid rgba(255,255,255,.2);border-radius:6px;background:transparent;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.7);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s}
+.col-btn:hover{border-color:rgba(255,255,255,.5);color:#fff}
 .col-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:100;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);min-width:200px;padding:8px 0}
 .col-menu.open{display:block}
 .col-menu-item{display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;color:var(--fg2);transition:background .1s}
@@ -186,8 +190,8 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
 <div id="dashboard" style="display:none">
 <div class="hdr">
   <div class="hdr-logos">
-    <img src="gn-logo.png" alt="George &amp; Noonan Real Estate Group" title="George &amp; Noonan Real Estate Group">
-    <img src="ventanas-logo.png" alt="Ventanas of Westlake" title="Ventanas of Westlake">
+    <img src="https://lh3.googleusercontent.com/d/1m4HCXUxLUKXg79VPgbzkz6tVTmhQzHdb" alt="George &amp; Noonan Real Estate Group" title="George &amp; Noonan Real Estate Group">
+    <img src="ventanas-logo.png" alt="Ventanas of Westlake" title="Ventanas of Westlake" class="logo-invert">
   </div>
   <div class="hdr-right">
     <div><div class="live-badge m"><span class="live-dot"></span> LIVE</div><p class="m" style="font-size:9px;color:var(--fg4);margin-top:4px" id="update-time"></p></div>
