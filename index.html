@@ -6,508 +6,486 @@
 <title>Ventanas of Westlake — Lot Closings Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,600;6..72,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Newsreader', Georgia, serif; background: #faf9f6; color: #1a1a1a; min-height: 100vh; }
-  .mono { font-family: 'DM Mono', monospace; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Newsreader',Georgia,serif;background:#faf9f6;color:#1a1a1a;min-height:100vh}
+.m{font-family:'DM Mono',monospace}
 
-  .header { padding: 36px 32px 28px; border-bottom: 3px solid #1a1a1a; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 12px; }
-  .header-sub { font-size: 10px; letter-spacing: 0.2em; color: #8a8578; margin-bottom: 4px; }
-  .header h1 { font-size: 32px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.02em; line-height: 1.1; }
-  .header-tag { font-size: 11px; color: #8a8578; margin-top: 4px; letter-spacing: 0.08em; }
-  .header-meta { font-size: 10px; color: #b8a88a; letter-spacing: 0.08em; }
+/* Header */
+.hdr{padding:36px 32px 28px;border-bottom:3px solid #1a1a1a;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px}
+.hdr h1{font-size:32px;font-weight:700;letter-spacing:-0.02em;line-height:1.1}
 
-  .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #e5e2db; border-bottom: 2px solid #1a1a1a; }
-  .kpi-card { padding: 24px 24px 20px; background: #faf9f6; }
-  .kpi-label { font-size: 9px; font-weight: 500; letter-spacing: 0.14em; color: #8a8578; margin-bottom: 8px; }
-  .kpi-value { font-family: 'Newsreader', Georgia, serif; font-size: 28px; font-weight: 700; line-height: 1; }
-  .kpi-sub { font-size: 10px; color: #a8a198; margin-top: 8px; }
+/* Collapsible Overview */
+.overview-toggle{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;border-bottom:1px solid #e5e2db;cursor:pointer;user-select:none;transition:background 0.1s}
+.overview-toggle:hover{background:#f5f3ee}
+.overview-toggle h2{font-size:14px;font-weight:600;letter-spacing:0.06em;color:#1a1a1a;display:flex;align-items:center;gap:8px}
+.overview-chevron{font-size:12px;color:#8a8578;transition:transform 0.25s}
+.overview-chevron.open{transform:rotate(180deg)}
+.overview-body{overflow:hidden;transition:max-height 0.35s ease,opacity 0.25s ease;max-height:2000px;opacity:1}
+.overview-body.collapsed{max-height:0;opacity:0}
+.overview-summary{padding:2px 0;font-size:11px;color:#8a8578;display:flex;gap:16px;flex-wrap:wrap}
 
-  .progress-section { padding: 20px 32px; border-bottom: 1px solid #e5e2db; }
-  .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .progress-track { display: flex; height: 10px; border-radius: 2px; overflow: hidden; background: #ece9e1; }
-  .progress-closed { background: #2d6a4f; transition: width 0.6s; }
-  .progress-uc { background: #d4a843; transition: width 0.6s; }
-  .progress-legend { display: flex; gap: 24px; margin-top: 8px; font-size: 10px; color: #6b6b6b; }
-  .legend-dot { width: 8px; height: 8px; border-radius: 1px; display: inline-block; vertical-align: middle; margin-right: 6px; }
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:#e5e2db;border-bottom:1px solid #e5e2db}
+.kpi-card{padding:22px 22px 18px;background:#faf9f6}
+.kpi-label{font-size:9px;font-weight:500;letter-spacing:0.14em;color:#8a8578;margin-bottom:6px}
+.kpi-value{font-family:'Newsreader',Georgia,serif;font-size:26px;font-weight:700;line-height:1}
+.kpi-sub{font-size:10px;color:#a8a198;margin-top:6px}
 
-  .buyer-section { padding: 20px 32px; border-bottom: 1px solid #e5e2db; }
-  .buyer-row { margin-bottom: 8px; }
-  .buyer-row-header { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 11px; }
-  .buyer-bar-track { height: 5px; background: #ece9e1; border-radius: 1px; }
-  .buyer-bar-fill { height: 100%; border-radius: 1px; }
+/* Progress */
+.prog{padding:16px 32px;border-bottom:1px solid #e5e2db}
+.prog-header{display:flex;justify-content:space-between;margin-bottom:6px}
+.prog-track{display:flex;height:8px;border-radius:2px;overflow:hidden;background:#ece9e1}
+.prog-legend{display:flex;gap:16px;margin-top:6px;font-size:10px;color:#6b6b6b;flex-wrap:wrap}
+.ldot{width:8px;height:8px;border-radius:1px;display:inline-block;vertical-align:middle;margin-right:5px}
 
-  .filter-section { padding: 20px 32px 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-  .filter-group { display: flex; }
-  .fbtn { padding: 8px 20px; border: 1px solid #d4d0c8; background: transparent; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; cursor: pointer; transition: all 0.15s; color: #8a8578; }
-  .fbtn:first-child { border-radius: 4px 0 0 4px; }
-  .fbtn:last-child { border-radius: 0 4px 4px 0; }
-  .fbtn.act { background: #1a1a1a; color: #faf9f6; border-color: #1a1a1a; }
+/* Buyer */
+.buyer-section{padding:16px 32px;border-bottom:1px solid #e5e2db}
+.buyer-row{margin-bottom:6px}
+.buyer-hdr{display:flex;justify-content:space-between;margin-bottom:2px;font-size:11px}
+.buyer-track{height:4px;background:#ece9e1;border-radius:1px}
+.buyer-fill{height:100%;border-radius:1px}
 
-  .party-filter { padding: 8px 32px 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .party-input { font-family: 'DM Mono', monospace; font-size: 12px; padding: 8px 14px; border: 1px solid #d4d0c8; border-radius: 4px; background: #fff; color: #1a1a1a; outline: none; width: 260px; }
-  .party-input:focus { border-color: #1a1a1a; }
-  .party-input::placeholder { color: #b8a88a; }
-  .party-clear { font-family: 'DM Mono', monospace; font-size: 11px; padding: 8px 14px; border: 1px solid #d4d0c8; border-radius: 4px; background: transparent; color: #8a8578; cursor: pointer; }
-  .party-clear:hover { background: #ece9e1; }
+/* Filters */
+.filter-bar{padding:16px 32px 8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.filter-group{display:flex;flex-wrap:wrap;gap:4px}
+.fbtn{padding:6px 14px;border:1px solid #d4d0c8;background:transparent;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.04em;cursor:pointer;transition:all 0.15s;color:#8a8578;border-radius:4px;white-space:nowrap}
+.fbtn.act{background:#1a1a1a;color:#faf9f6;border-color:#1a1a1a}
+.party-row{padding:4px 32px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.party-input{font-family:'DM Mono',monospace;font-size:12px;padding:7px 12px;border:1px solid #d4d0c8;border-radius:4px;background:#fff;color:#1a1a1a;outline:none;width:240px}
+.party-input:focus{border-color:#1a1a1a}
+.party-input::placeholder{color:#b8a88a}
+.party-clear{font-family:'DM Mono',monospace;font-size:10px;padding:7px 12px;border:1px solid #d4d0c8;border-radius:4px;background:transparent;color:#8a8578;cursor:pointer}
 
-  .table-wrap { padding: 0 32px 32px; overflow-x: auto; }
-  .tbl { width: 100%; border-collapse: collapse; }
-  .tbl th { text-align: left; padding: 10px 14px; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #8a8578; border-bottom: 2px solid #1a1a1a; white-space: nowrap; }
-  .tbl td { padding: 10px 14px; font-family: 'DM Mono', monospace; font-size: 12px; color: #4a4a4a; border-bottom: 1px solid #ece9e1; vertical-align: top; white-space: nowrap; }
-  .tbl tbody tr:hover td { background: #f5f3ee; }
-  .tbl tr.doc-row:hover td { background: transparent; }
-  .tbl tfoot td { font-family: 'DM Mono', monospace; font-size: 12px; }
-  .text-right { text-align: right; }
-  .text-center { text-align: center; }
+/* Table */
+.tw{padding:0 32px 32px;overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;padding:9px 12px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#8a8578;border-bottom:2px solid #1a1a1a;white-space:nowrap;cursor:pointer;user-select:none;position:relative}
+.tbl th:hover{color:#1a1a1a}
+.tbl th .sort-arrow{font-size:9px;margin-left:3px;color:#b8a88a}
+.tbl th.sorted .sort-arrow{color:#1a1a1a}
+.tbl td{padding:9px 12px;font-family:'DM Mono',monospace;font-size:11px;color:#4a4a4a;border-bottom:1px solid #ece9e1;vertical-align:top;white-space:nowrap}
+.tbl tbody tr:hover td{background:#f5f3ee}
+.tbl tr.doc-row:hover td{background:transparent}
+.tbl tfoot td{font-family:'DM Mono',monospace;font-size:11px}
+.tr{text-align:right}.tc{text-align:center}
 
-  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 500; }
-  .badge-closed { background: #e8f5e9; color: #2d6a4f; border: 1px solid #c8e6c9; }
-  .badge-uc { background: #fff8e1; color: #b8860b; border: 1px solid #ffe082; }
-  .badge-dot { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
-  .cell-lot { font-weight: 500; color: #1a1a1a; }
-  .cell-price { font-weight: 500; color: #1a1a1a; }
-  .cell-dim { color: #c8c4bb; }
-  .cell-ellipsis { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .type-resell { padding: 1px 6px; border-radius: 2px; font-size: 10px; background: #f3e8ff; color: #6b4c8a; }
-  .type-original { font-size: 10px; color: #8a8578; }
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:3px;font-size:9px;font-weight:500;letter-spacing:0.03em}
+.bdot{width:5px;height:5px;border-radius:50%;display:inline-block}
+.b-closed{background:#e8f5e9;color:#2d6a4f;border:1px solid #c8e6c9}.bd-closed{background:#2d6a4f}
+.b-uc{background:#fff8e1;color:#b8860b;border:1px solid #ffe082}.bd-uc{background:#d4a843}
+.b-lost{background:#fce4ec;color:#c62828;border:1px solid #ef9a9a}.bd-lost{background:#c62828}
+.b-listed{background:#e3f2fd;color:#1565c0;border:1px solid #90caf9}.bd-listed{background:#1565c0}
+.b-notlisted{background:#f5f5f5;color:#616161;border:1px solid #e0e0e0}.bd-notlisted{background:#9e9e9e}
+.type-resell{padding:1px 5px;border-radius:2px;font-size:9px;background:#f3e8ff;color:#6b4c8a}
+.type-orig{font-size:9px;color:#8a8578}
+.cell-lot{font-weight:500;color:#1a1a1a}
+.cell-dim{color:#c8c4bb}
+.cell-ellipsis{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-  .note-dot { cursor: pointer; color: #b8a88a; font-size: 14px; position: relative; }
-  .note-dot:hover { color: #1a1a1a; }
-  .note-tooltip { display: none; position: absolute; right: 0; top: 100%; z-index: 10; background: #1a1a1a; color: #faf9f6; padding: 10px 14px; border-radius: 4px; font-size: 11px; line-height: 1.5; font-family: 'DM Mono', monospace; min-width: 220px; max-width: 300px; white-space: normal; text-align: left; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-  .note-dot.open .note-tooltip { display: block; }
+/* Notes */
+.note-dot{cursor:pointer;color:#b8a88a;font-size:13px;position:relative}
+.note-dot:hover{color:#1a1a1a}
+.note-tip{display:none;position:absolute;right:0;top:100%;z-index:10;background:#1a1a1a;color:#faf9f6;padding:10px 14px;border-radius:4px;font-size:10px;line-height:1.5;font-family:'DM Mono',monospace;min-width:200px;max-width:280px;white-space:normal;text-align:left;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.note-dot.open .note-tip{display:block}
 
-  .doc-btn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500; cursor: pointer; border: 1px solid #d4d0c8; background: #fff; color: #4a4a4a; transition: all 0.15s; }
-  .doc-btn:hover { background: #1a1a1a; color: #faf9f6; border-color: #1a1a1a; }
-  .doc-btn.open { background: #1a1a1a; color: #faf9f6; border-color: #1a1a1a; }
-  .doc-panel { background: #f5f3ee; border-bottom: 2px solid #e5e2db; }
-  .doc-card { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: #fff; border-radius: 6px; border: 1px solid #e5e2db; cursor: pointer; transition: all 0.15s; }
-  .doc-card:hover { border-color: #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-  .doc-icon { width: 36px; height: 36px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-  .doc-name { font-family: 'DM Mono', monospace; font-size: 12px; color: #1a1a1a; font-weight: 500; }
-  .doc-type-label { font-family: 'DM Mono', monospace; font-size: 10px; color: #8a8578; margin-top: 2px; }
-  .doc-open { font-family: 'DM Mono', monospace; font-size: 10px; color: #2d6a4f; margin-left: auto; flex-shrink: 0; }
+/* Docs */
+.doc-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;font-family:'DM Mono',monospace;font-size:9px;font-weight:500;cursor:pointer;border:1px solid #d4d0c8;background:#fff;color:#4a4a4a;transition:all .15s}
+.doc-btn:hover,.doc-btn.open{background:#1a1a1a;color:#faf9f6;border-color:#1a1a1a}
+.doc-panel{background:#f5f3ee;border-bottom:2px solid #e5e2db}
+.doc-card{display:flex;align-items:center;gap:10px;padding:9px 14px;background:#fff;border-radius:6px;border:1px solid #e5e2db;cursor:pointer;transition:all .15s}
+.doc-card:hover{border-color:#1a1a1a;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.doc-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.doc-name{font-family:'DM Mono',monospace;font-size:11px;color:#1a1a1a;font-weight:500}
+.doc-sub{font-family:'DM Mono',monospace;font-size:9px;color:#8a8578;margin-top:1px}
+.doc-open{font-family:'DM Mono',monospace;font-size:9px;color:#2d6a4f;margin-left:auto;flex-shrink:0}
 
-  /* Modal */
-  .modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(10,10,10,0.85); backdrop-filter: blur(4px); display: none; flex-direction: column; }
-  .modal-overlay.active { display: flex; }
-  .modal-topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #1a1a1a; border-bottom: 1px solid #333; flex-shrink: 0; }
-  .modal-doc-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-  .modal-doc-name { font-family: 'DM Mono', monospace; font-size: 13px; color: #f1f5f9; font-weight: 500; }
-  .modal-doc-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: #8a8578; margin-top: 1px; }
-  .modal-counter { font-family: 'DM Mono', monospace; font-size: 11px; color: #8a8578; margin-right: 8px; }
-  .modal-drive-link { font-family: 'DM Mono', monospace; font-size: 11px; padding: 6px 14px; border: 1px solid #444; border-radius: 4px; color: #ccc; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
-  .modal-drive-link:hover { border-color: #888; color: #fff; }
-  .modal-close { width: 36px; height: 36px; border-radius: 6px; border: 1px solid #444; background: transparent; color: #ccc; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .modal-close:hover { border-color: #888; color: #fff; }
-  .modal-body { display: flex; flex: 1; overflow: hidden; }
-  .modal-sidebar { width: 240px; flex-shrink: 0; background: #141414; border-right: 1px solid #2a2a2a; overflow-y: auto; padding: 12px 0; }
-  .modal-sidebar-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.12em; color: #666; padding: 4px 16px 10px; text-transform: uppercase; }
-  .modal-sidebar-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 16px; border: none; background: transparent; border-left: 3px solid transparent; cursor: pointer; text-align: left; transition: background 0.1s; }
-  .modal-sidebar-btn.active { background: #2a2a2a; border-left-color: #818cf8; }
-  .modal-sidebar-btn:hover { background: #222; }
-  .modal-sidebar-name { font-family: 'DM Mono', monospace; font-size: 11px; color: #999; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .modal-sidebar-btn.active .modal-sidebar-name { color: #f1f5f9; font-weight: 600; }
-  .modal-sidebar-type { font-family: 'DM Mono', monospace; font-size: 9px; color: #555; margin-top: 2px; }
-  .modal-sidebar-hint { padding: 16px; margin-top: 8px; border-top: 1px solid #2a2a2a; font-family: 'DM Mono', monospace; font-size: 9px; color: #555; line-height: 1.6; }
-  .modal-preview { flex: 1; position: relative; background: #0a0a0a; }
-  .modal-preview iframe { width: 100%; height: 100%; border: none; }
-  .modal-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.1); color: #fff; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: background 0.15s; }
-  .modal-nav:hover { background: rgba(255,255,255,0.25); }
-  .modal-nav.prev { left: 12px; }
-  .modal-nav.next { right: 12px; }
+/* Modal */
+.modal{position:fixed;inset:0;z-index:9999;background:rgba(10,10,10,.85);backdrop-filter:blur(4px);display:none;flex-direction:column}
+.modal.active{display:flex}
+.modal-top{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#1a1a1a;border-bottom:1px solid #333;flex-shrink:0}
+.modal-close{width:34px;height:34px;border-radius:6px;border:1px solid #444;background:0 0;color:#ccc;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{border-color:#888;color:#fff}
+.modal-body{display:flex;flex:1;overflow:hidden}
+.modal-side{width:220px;flex-shrink:0;background:#141414;border-right:1px solid #2a2a2a;overflow-y:auto;padding:10px 0}
+.modal-side-btn{display:flex;align-items:center;gap:8px;width:100%;padding:9px 14px;border:none;background:0 0;border-left:3px solid transparent;cursor:pointer;text-align:left}
+.modal-side-btn.active{background:#2a2a2a;border-left-color:#818cf8}
+.modal-side-btn:hover{background:#222}
+.modal-preview{flex:1;position:relative;background:#0a0a0a}
+.modal-preview iframe{width:100%;height:100%;border:none}
+.modal-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.1);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-nav:hover{background:rgba(255,255,255,.25)}
+.modal-nav.prev{left:10px}.modal-nav.next{right:10px}
 
-  .live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; background: #e8f5e9; color: #2d6a4f; border-radius: 12px; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; }
-  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #2d6a4f; animation: pulse 2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.live-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:#e8f5e9;color:#2d6a4f;border-radius:12px;font-size:9px;font-weight:600;letter-spacing:.08em}
+.live-dot{width:5px;height:5px;border-radius:50%;background:#2d6a4f;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-  .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-  .spinner { width: 36px; height: 36px; border: 3px solid #e5e2db; border-top-color: #1a1a1a; border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
+.spinner{width:36px;height:36px;border:3px solid #e5e2db;border-top-color:#1a1a1a;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;padding:32px}
+.retry-btn{padding:10px 28px;background:#1a1a1a;color:#faf9f6;border:none;border-radius:4px;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer}
+.footer{padding:16px 32px 28px;border-top:1px solid #e5e2db;font-size:10px;color:#b8a88a;text-align:center;line-height:1.8}
+.footer a{color:#8a8578;text-decoration:underline}
 
-  .error { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 32px; }
-  .retry-btn { padding: 10px 28px; background: #1a1a1a; color: #faf9f6; border: none; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; }
-
-  .footer { padding: 16px 32px 28px; border-top: 1px solid #e5e2db; font-size: 10px; color: #b8a88a; text-align: center; line-height: 1.8; }
-  .footer a { color: #8a8578; text-decoration: underline; }
-
-  @media (max-width: 700px) {
-    .kpi-grid { grid-template-columns: 1fr; }
-    .header, .progress-section, .buyer-section, .filter-section, .party-filter { padding-left: 20px; padding-right: 20px; }
-    .table-wrap { padding: 0 20px 20px; }
-    .modal-sidebar { display: none; }
-  }
+@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.hdr,.prog,.buyer-section,.filter-bar,.party-row{padding-left:20px;padding-right:20px}.tw{padding:0 20px 20px}.overview-toggle{padding-left:20px;padding-right:20px}.modal-side{display:none}}
 </style>
 </head>
 <body>
+<div id="loading" class="loading"><div class="spinner"></div><p class="m" style="margin-top:16px;font-size:13px;color:#8a8578;">Loading live data…</p></div>
+<div id="error" class="error" style="display:none"><h2 style="font-size:18px;margin-bottom:8px;">Unable to load data</h2><p class="m" style="font-size:13px;color:#8a8578;margin-bottom:16px;">Ensure the Google Sheet is shared as "Anyone with the link."</p><button class="retry-btn" onclick="fetchData()">RETRY</button></div>
+<div id="dashboard" style="display:none">
 
-<div id="loading" class="loading">
-  <div class="spinner"></div>
-  <p class="mono" style="margin-top:16px;font-size:13px;color:#8a8578;">Loading live data from Google Sheets...</p>
+<!-- Header -->
+<div class="hdr">
+<div>
+<p class="m" style="font-size:10px;letter-spacing:.2em;color:#8a8578;margin-bottom:4px">SYNERGY REALTY — GEORGE &amp; NOONAN GROUP</p>
+<h1>Ventanas of Westlake</h1>
+<p class="m" style="font-size:11px;color:#8a8578;margin-top:4px;letter-spacing:.08em">LOT CLOSINGS &amp; PIPELINE</p>
 </div>
-<div id="error" class="error" style="display:none;">
-  <h2 style="font-size:18px;color:#1a1a1a;margin-bottom:8px;">Unable to load data</h2>
-  <p class="mono" style="font-size:13px;color:#8a8578;margin-bottom:16px;">Make sure the Google Sheet is shared as "Anyone with the link" (viewer).</p>
-  <button class="retry-btn" onclick="fetchData()">RETRY</button>
+<div style="text-align:right">
+<div class="live-badge m"><span class="live-dot"></span> LIVE</div>
+<p class="m" style="font-size:10px;color:#b8a88a;margin-top:6px" id="update-time"></p>
+<p class="m" style="font-size:10px;color:#b8a88a;margin-top:2px" id="header-counts"></p>
 </div>
-
-<div id="dashboard" style="display:none;">
-  <div class="header">
-    <div>
-      <p class="mono header-sub">SYNERGY REALTY — GEORGE &amp; NOONAN GROUP</p>
-      <h1>Ventanas of Westlake</h1>
-      <p class="mono header-tag">LOT CLOSINGS &amp; PIPELINE</p>
-    </div>
-    <div style="text-align:right;">
-      <div class="live-badge mono"><span class="live-dot"></span> LIVE</div>
-      <p class="mono header-meta" style="margin-top:6px;" id="update-time"></p>
-      <p class="mono header-meta" style="margin-top:2px;" id="header-counts"></p>
-    </div>
-  </div>
-  <div class="kpi-grid">
-    <div class="kpi-card"><p class="mono kpi-label">CLOSED VALUE</p><p class="kpi-value" style="color:#2d6a4f;" id="kpi-closed-value"></p><p class="mono kpi-sub" id="kpi-closed-sub"></p></div>
-    <div class="kpi-card"><p class="mono kpi-label">UNDER CONTRACT</p><p class="kpi-value" style="color:#b8860b;" id="kpi-uc-value"></p><p class="mono kpi-sub" id="kpi-uc-sub"></p></div>
-    <div class="kpi-card"><p class="mono kpi-label">TOTAL PIPELINE</p><p class="kpi-value" style="color:#1a1a1a;" id="kpi-total-value"></p><p class="mono kpi-sub" id="kpi-total-sub"></p></div>
-  </div>
-  <div class="progress-section">
-    <div class="progress-header"><span class="mono" style="font-size:10px;letter-spacing:0.1em;color:#8a8578;">CLOSED VS. PIPELINE</span><span class="mono" style="font-size:11px;font-weight:500;color:#2d6a4f;" id="progress-pct"></span></div>
-    <div class="progress-track"><div class="progress-closed" id="bar-closed"></div><div class="progress-uc" id="bar-uc"></div></div>
-    <div class="progress-legend mono"><span><span class="legend-dot" style="background:#2d6a4f;"></span> Closed <span id="leg-closed"></span></span><span><span class="legend-dot" style="background:#d4a843;"></span> Under Contract <span id="leg-uc"></span></span></div>
-  </div>
-  <div class="buyer-section"><p class="mono" style="font-size:10px;letter-spacing:0.1em;color:#8a8578;margin-bottom:14px;">PENDING BY BUYER</p><div id="buyer-bars"></div></div>
-  <div class="filter-section"><p class="mono" style="font-size:10px;letter-spacing:0.1em;color:#8a8578;">TRANSACTION DETAIL</p><div class="filter-group" id="filter-group"></div></div>
-  <div class="party-filter"><input type="text" id="party-input" class="party-input" placeholder="Filter by seller or buyer name..." oninput="setParty(this.value)"><button class="party-clear" id="party-clear" onclick="clearParty()" style="display:none;">Clear</button><span class="mono" style="font-size:10px;color:#8a8578;" id="party-match"></span></div>
-  <div class="table-wrap">
-    <table class="tbl">
-      <thead><tr><th>Status</th><th>Lot(s)</th><th class="text-center">#</th><th>Type</th><th>Seller</th><th>Buyer</th><th>Close</th><th class="text-right">Price</th><th class="text-right">Synergy %</th><th class="text-center">Note</th><th class="text-center">Docs</th></tr></thead>
-      <tbody id="table-body"></tbody>
-      <tfoot id="table-foot"></tfoot>
-    </table>
-  </div>
-  <div class="footer mono">
-    <p>Source: <a href="https://docs.google.com/spreadsheets/d/14ABn9-kSRCtzaFV3m58R5Y1372RTx-ljchnq3Uf2450/edit" target="_blank">Ventanas Closings Sheet</a></p>
-    <p>Auto-refreshes every 60 seconds · Synergy Realty, LLC · 221 E Southlake Blvd, Suite 100 · Southlake, TX 76092</p>
-  </div>
 </div>
 
-<!-- Document Modal -->
-<div class="modal-overlay" id="modal">
-  <div class="modal-topbar">
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div class="modal-doc-icon" id="modal-icon"></div>
-      <div><div class="modal-doc-name" id="modal-name"></div><div class="modal-doc-sub" id="modal-sub"></div></div>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span class="modal-counter" id="modal-counter"></span>
-      <a class="modal-drive-link" id="modal-drive-link" href="#" target="_blank">Open in Drive ↗</a>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-  </div>
-  <div class="modal-body">
-    <div class="modal-sidebar" id="modal-sidebar"></div>
-    <div class="modal-preview">
-      <iframe id="modal-iframe" src="" title="Document Preview" allow="autoplay"></iframe>
-      <button class="modal-nav prev" id="modal-prev" onclick="modalPrev()">‹</button>
-      <button class="modal-nav next" id="modal-next" onclick="modalNext()">›</button>
-    </div>
-  </div>
+<!-- Overview Toggle -->
+<div class="overview-toggle" onclick="toggleOverview()">
+<h2 class="m">▾ <span id="ov-label">Overview</span></h2>
+<div class="overview-summary m" id="ov-summary"></div>
+</div>
+
+<!-- Overview Body -->
+<div class="overview-body" id="ov-body">
+<div class="kpi-grid" id="kpi-grid"></div>
+<div class="prog" id="prog-section"></div>
+<div class="buyer-section" id="buyer-section"></div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar">
+<p class="m" style="font-size:10px;letter-spacing:.1em;color:#8a8578">TRANSACTIONS</p>
+<div class="filter-group" id="filter-group"></div>
+</div>
+<div class="party-row">
+<input type="text" id="party-input" class="party-input" placeholder="Filter by seller or buyer…" oninput="setParty(this.value)">
+<button class="party-clear" id="party-clear" onclick="clearParty()" style="display:none">Clear</button>
+<span class="m" style="font-size:10px;color:#8a8578" id="party-match"></span>
+</div>
+
+<!-- Table -->
+<div class="tw">
+<table class="tbl">
+<thead><tr id="thead-row"></tr></thead>
+<tbody id="tbody"></tbody>
+<tfoot id="tfoot"></tfoot>
+</table>
+</div>
+
+<div class="footer m">
+<p>Source: <a href="https://docs.google.com/spreadsheets/d/14ABn9-kSRCtzaFV3m58R5Y1372RTx-ljchnq3Uf2450/edit" target="_blank">Ventanas Closings Sheet</a></p>
+<p>Auto-refreshes every 60 seconds · Synergy Realty, LLC · 221 E Southlake Blvd, Suite 100 · Southlake, TX 76092</p>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+<div class="modal-top">
+<div style="display:flex;align-items:center;gap:10px">
+<div class="doc-icon" id="m-icon"></div>
+<div><div class="m" style="font-size:12px;color:#f1f5f9;font-weight:500" id="m-name"></div><div class="m" style="font-size:10px;color:#8a8578;margin-top:1px" id="m-sub"></div></div>
+</div>
+<div style="display:flex;align-items:center;gap:8px">
+<span class="m" style="font-size:11px;color:#8a8578;margin-right:6px" id="m-counter"></span>
+<a class="m" id="m-drive" href="#" target="_blank" style="font-size:10px;padding:5px 12px;border:1px solid #444;border-radius:4px;color:#ccc;text-decoration:none">Open in Drive ↗</a>
+<button class="modal-close" onclick="closeModal()">✕</button>
+</div>
+</div>
+<div class="modal-body">
+<div class="modal-side" id="m-side"></div>
+<div class="modal-preview">
+<iframe id="m-iframe" src="" title="Preview"></iframe>
+<button class="modal-nav prev" id="m-prev" onclick="modalNav(-1)">‹</button>
+<button class="modal-nav next" id="m-next" onclick="modalNav(1)">›</button>
+</div>
+</div>
 </div>
 
 <script>
-const SHEET_ID = '14ABn9-kSRCtzaFV3m58R5Y1372RTx-ljchnq3Uf2450';
-const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
-const BUYER_COLORS = ['#6b7c5e','#b8860b','#8b6f5c','#6b4c8a','#4a7c8c','#5c7c6b','#8c6b4a'];
-const DOC_STYLES = {
-  Contract: { icon: '📄', color: '#2d6a4f', bg: '#e8f5e9' },
-  Survey:   { icon: '📐', color: '#b8860b', bg: '#fff8e1' },
-  Amendment:{ icon: '📝', color: '#e65100', bg: '#fff3e0' },
-  Closing:  { icon: '✅', color: '#1565c0', bg: '#e3f2fd' },
-  Other:    { icon: '📎', color: '#6b4c8a', bg: '#f3e8ff' },
+const SHEET_ID='14ABn9-kSRCtzaFV3m58R5Y1372RTx-ljchnq3Uf2450';
+const CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+const BCOLORS=['#6b7c5e','#b8860b','#8b6f5c','#6b4c8a','#4a7c8c','#5c7c6b','#8c6b4a','#4a6b5c'];
+const DS={Contract:{i:'📄',c:'#2d6a4f',b:'#e8f5e9'},Survey:{i:'📐',c:'#b8860b',b:'#fff8e1'},Amendment:{i:'📝',c:'#e65100',b:'#fff3e0'},Closing:{i:'✅',c:'#1565c0',b:'#e3f2fd'},Listing:{i:'📋',c:'#6b4c8a',b:'#f3e8ff'},Other:{i:'📎',c:'#6b4c8a',b:'#f3e8ff'}};
+const STATUS_MAP={
+  'Closed':     {cls:'b-closed',dot:'bd-closed',label:'CLOSED',color:'#2d6a4f'},
+  'Under Contract':{cls:'b-uc',dot:'bd-uc',label:'UC',color:'#b8860b'},
+  'Lost':       {cls:'b-lost',dot:'bd-lost',label:'LOST',color:'#c62828'},
+  'For Sale - Listed':{cls:'b-listed',dot:'bd-listed',label:'LISTED',color:'#1565c0'},
+  'For Sale - Not Listed':{cls:'b-notlisted',dot:'bd-notlisted',label:'NOT LISTED',color:'#616161'},
 };
+const COLUMNS=[
+  {key:'status',label:'Status',align:''},
+  {key:'lot',label:'Lot(s)',align:''},
+  {key:'lots',label:'#',align:'tc'},
+  {key:'type',label:'Type',align:''},
+  {key:'seller',label:'Seller',align:''},
+  {key:'buyer',label:'Buyer',align:''},
+  {key:'closeDate',label:'Close',align:''},
+  {key:'price',label:'Price',align:'tr'},
+  {key:'synergyPct',label:'Synergy %',align:'tr'},
+  {key:'note',label:'Note',align:'tc',nosort:true},
+  {key:'docs',label:'Docs',align:'tc',nosort:true},
+];
 
-let allData = [];
-let currentFilter = 'All';
-let partySearch = '';
-let modalDocs = [];
-let modalIdx = 0;
-let modalLot = '';
-let modalType = '';
+let allData=[],currentFilter='All',partySearch='',sortCol='',sortDir='asc',overviewOpen=true;
+let mDocs=[],mIdx=0,mLot='',mType='';
 
-function parseLine(line) {
-  const vals = []; let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') inQ = !inQ;
-    else if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
-    else cur += ch;
-  }
-  vals.push(cur.trim());
-  return vals;
-}
+// --- Parsing ---
+function pLine(l){const v=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')q=!q;else if(ch===','&&!q){v.push(c.trim());c='';}else c+=ch;}v.push(c.trim());return v;}
+function parseCSV(t){const ls=t.split('\n').filter(l=>l.trim());if(ls.length<2)return[];const h=pLine(ls[0]);const rows=[];for(let i=1;i<ls.length;i++){const v=pLine(ls[i]);const obj={};h.forEach((hh,j)=>{obj[hh.trim()]=(v[j]||'').trim();});if(obj[Object.keys(obj).find(k=>k.toLowerCase().includes('status'))||'']||'')rows.push(obj);}return rows;}
+function col(r,p){const k=Object.keys(r).find(k=>k.toLowerCase().includes(p.toLowerCase()));return k?r[k]:'';}
+function guessType(n){const l=n.toLowerCase();if(l.includes('contract'))return'Contract';if(l.includes('survey')||l.includes('plat'))return'Survey';if(l.includes('amendment')||l.includes('addendum')||l.includes('assignment'))return'Amendment';if(l.includes('closing')||l.includes('settlement')||l.includes('hud'))return'Closing';if(l.includes('listing'))return'Listing';return'Other';}
+function parseDocs(s){if(!s||!s.trim())return[];return s.split(';').map(e=>{const p=e.split('|');if(p.length<2)return null;const n=p[0].trim();const u=p.slice(1).join('|').trim();return n&&u?{name:n,url:u,type:guessType(n)}:null;}).filter(Boolean);}
+function drivePreview(u){const m=u.match(/\/d\/([a-zA-Z0-9_-]+)/);return m?`https://drive.google.com/file/d/${m[1]}/preview`:u;}
+function parseCur(v){return v?parseFloat(v.replace(/[$,]/g,''))||0:0;}
+function fmt(n){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n);}
+function fmtD(d){if(!d||d==='TBD'||d==='')return'TBD';const dt=new Date(d);return isNaN(dt)?d:dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
-function parseCSV(text) {
-  const lines = text.split('\n').filter(l => l.trim());
-  if (lines.length < 2) return [];
-  const headers = parseLine(lines[0]);
-  const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    const vals = parseLine(lines[i]);
-    const si = headers.findIndex(h => h.toLowerCase().includes('status'));
-    const sv = si >= 0 ? (vals[si] || '') : '';
-    if (sv !== 'Closed' && sv !== 'Under Contract') continue;
-    const obj = {};
-    headers.forEach((h, j) => { obj[h.trim()] = (vals[j] || '').trim(); });
-    rows.push(obj);
-  }
-  return rows;
-}
-
-function col(row, partial) {
-  const key = Object.keys(row).find(k => k.toLowerCase().includes(partial.toLowerCase()));
-  return key ? row[key] : '';
-}
-
-function guessDocType(name) {
-  const n = name.toLowerCase();
-  if (n.includes('contract')) return 'Contract';
-  if (n.includes('survey') || n.includes('plat')) return 'Survey';
-  if (n.includes('amendment') || n.includes('addendum') || n.includes('assignment')) return 'Amendment';
-  if (n.includes('closing') || n.includes('settlement') || n.includes('hud')) return 'Closing';
-  return 'Other';
-}
-
-function parseDocs(str) {
-  if (!str || !str.trim()) return [];
-  return str.split(';').map(entry => {
-    const parts = entry.split('|');
-    if (parts.length < 2) return null;
-    const name = parts[0].trim();
-    const url = parts.slice(1).join('|').trim();
-    return { name, url, type: guessDocType(name) };
+function normalize(rows){
+  return rows.map(r=>{
+    const status=col(r,'Status');
+    if(!status||status==='Totals')return null;
+    return{
+      type:col(r,'Type'),lot:col(r,'L&B')||col(r,'L&amp;B'),
+      lots:parseInt(col(r,'Total Lots'))||0,status,
+      seller:col(r,'Seller'),buyer:col(r,'Buyer'),
+      closeDate:col(r,'Closing Date'),price:parseCur(col(r,'Contract Price')),
+      synergyPct:col(r,'Synergy Compensation')||'',
+      note:col(r,'Note'),docs:parseDocs(col(r,'Document')),
+    };
   }).filter(Boolean);
 }
 
-function drivePreviewUrl(url) {
-  const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  return m ? `https://drive.google.com/file/d/${m[1]}/preview` : url;
-}
-
-function parseCurrency(val) { return val ? parseFloat(val.replace(/[$,]/g, '')) || 0 : 0; }
-function fmt(n) { return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(n); }
-function fmtDate(d) { if (!d || d === 'TBD') return 'TBD'; const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
-function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-
-function normalize(rows) {
-  return rows.map(r => ({
-    type: col(r, 'Type'), lot: col(r, 'L&B') || col(r, 'L&amp;B'),
-    lots: parseInt(col(r, 'Total Lots')) || 0, status: col(r, 'Status'),
-    seller: col(r, 'Seller'), buyer: col(r, 'Buyer'),
-    closeDate: col(r, 'Closing Date'), price: parseCurrency(col(r, 'Contract Price')),
-    synergyPct: col(r, 'Synergy Compensation') || '0%',
-    note: col(r, 'Note'), docs: parseDocs(col(r, 'Document')),
-  }));
-}
-
-function getFiltered() {
-  let f = currentFilter === 'All' ? allData : allData.filter(r => r.status === currentFilter);
-  if (partySearch) {
-    const q = partySearch.toLowerCase();
-    f = f.filter(r => r.seller.toLowerCase().includes(q) || r.buyer.toLowerCase().includes(q));
-  }
+function getFiltered(){
+  let f=currentFilter==='All'?allData:allData.filter(r=>r.status===currentFilter);
+  if(partySearch){const q=partySearch.toLowerCase();f=f.filter(r=>(r.seller||'').toLowerCase().includes(q)||(r.buyer||'').toLowerCase().includes(q));}
   return f;
 }
 
-function render() {
-  const closed = allData.filter(r => r.status === 'Closed'), uc = allData.filter(r => r.status === 'Under Contract');
-  const cV = closed.reduce((s,r)=>s+r.price,0), uV = uc.reduce((s,r)=>s+r.price,0), tV = cV+uV;
-  const cL = closed.reduce((s,r)=>s+r.lots,0), uL = uc.reduce((s,r)=>s+r.lots,0);
-  const pct = tV > 0 ? (cV/tV)*100 : 0;
-  const filtered = getFiltered();
-
-  document.getElementById('update-time').textContent = 'UPDATED ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  document.getElementById('header-counts').textContent = allData.length + ' TRANSACTIONS · ' + (cL+uL) + ' LOTS';
-  document.getElementById('kpi-closed-value').textContent = fmt(cV);
-  document.getElementById('kpi-closed-sub').textContent = cL+' lots · '+closed.length+' txns';
-  document.getElementById('kpi-uc-value').textContent = fmt(uV);
-  document.getElementById('kpi-uc-sub').textContent = uL+' lots · '+uc.length+' txns';
-  document.getElementById('kpi-total-value').textContent = fmt(tV);
-  document.getElementById('kpi-total-sub').textContent = (cL+uL)+' total lots';
-  document.getElementById('progress-pct').textContent = pct.toFixed(1)+'% CLOSED';
-  document.getElementById('bar-closed').style.width = pct+'%';
-  document.getElementById('bar-uc').style.width = (100-pct)+'%';
-  document.getElementById('leg-closed').textContent = fmt(cV);
-  document.getElementById('leg-uc').textContent = fmt(uV);
-
-  // Buyer breakdown
-  const groups = {};
-  uc.filter(r=>r.price>0).forEach(r => {
-    const n = r.buyer.split(',')[0].trim();
-    if (!groups[n]) groups[n]={lots:0,value:0};
-    groups[n].lots += r.lots; groups[n].value += r.price;
+function sorted(arr){
+  if(!sortCol)return arr;
+  const copy=[...arr];
+  copy.sort((a,b)=>{
+    let va=a[sortCol],vb=b[sortCol];
+    if(sortCol==='price'||sortCol==='lots')return sortDir==='asc'?(va-vb):(vb-va);
+    if(sortCol==='closeDate'){
+      const da=va&&va!=='TBD'?new Date(va):new Date('2099-01-01');
+      const db=vb&&vb!=='TBD'?new Date(vb):new Date('2099-01-01');
+      return sortDir==='asc'?(da-db):(db-da);
+    }
+    va=(va||'').toString().toLowerCase();vb=(vb||'').toString().toLowerCase();
+    return sortDir==='asc'?va.localeCompare(vb):vb.localeCompare(va);
   });
-  document.getElementById('buyer-bars').innerHTML = Object.entries(groups).sort((a,b)=>b[1].value-a[1].value).map(([n,d],i) => {
-    const p = uV>0?(d.value/uV)*100:0;
-    return `<div class="buyer-row"><div class="buyer-row-header mono"><span style="color:#4a4a4a">${esc(n)}</span><span style="color:#8a8578">${fmt(d.value)} · ${d.lots} lots</span></div><div class="buyer-bar-track"><div class="buyer-bar-fill" style="width:${p}%;background:${BUYER_COLORS[i%BUYER_COLORS.length]};"></div></div></div>`;
-  }).join('');
+  return copy;
+}
 
-  // Filters
-  document.getElementById('filter-group').innerHTML = ['All','Closed','Under Contract'].map(f => {
-    const c = f==='All'?allData.length:allData.filter(r=>r.status===f).length;
-    return `<button class="fbtn mono ${currentFilter===f?'act':''}" onclick="setFilter('${f}')">${f} (${c})</button>`;
+// --- Overview ---
+function toggleOverview(){
+  overviewOpen=!overviewOpen;
+  document.getElementById('ov-body').classList.toggle('collapsed',!overviewOpen);
+  document.getElementById('ov-label').textContent=overviewOpen?'Overview':'Overview';
+  const ch=document.querySelector('.overview-chevron');
+  // Update the toggle arrow
+  document.querySelector('.overview-toggle h2').innerHTML=(overviewOpen?'▾':'▸')+' Overview';
+  renderOverviewSummary();
+}
+
+function renderOverviewSummary(){
+  const f=getFiltered();
+  const el=document.getElementById('ov-summary');
+  if(overviewOpen){el.innerHTML='';return;}
+  const tL=f.reduce((s,r)=>s+r.lots,0);
+  const tV=f.reduce((s,r)=>s+r.price,0);
+  el.innerHTML=`<span>${f.length} txns</span><span>${tL} lots</span><span>${fmt(tV)}</span>`;
+}
+
+function renderOverview(){
+  const f=getFiltered();
+  const closed=f.filter(r=>r.status==='Closed'),uc=f.filter(r=>r.status==='Under Contract');
+  const lost=f.filter(r=>r.status==='Lost'),listed=f.filter(r=>r.status==='For Sale - Listed');
+  const notlisted=f.filter(r=>r.status==='For Sale - Not Listed');
+
+  const cV=closed.reduce((s,r)=>s+r.price,0),uV=uc.reduce((s,r)=>s+r.price,0);
+  const lV=lost.reduce((s,r)=>s+r.price,0);
+  const tV=f.reduce((s,r)=>s+r.price,0);
+  const cL=closed.reduce((s,r)=>s+r.lots,0),uL=uc.reduce((s,r)=>s+r.lots,0);
+  const tL=f.reduce((s,r)=>s+r.lots,0);
+
+  // KPIs — dynamic based on what's in the filtered set
+  const kpis=[];
+  if(closed.length) kpis.push({label:'CLOSED',value:fmt(cV),sub:`${cL} lots · ${closed.length} txns`,color:'#2d6a4f'});
+  if(uc.length) kpis.push({label:'UNDER CONTRACT',value:fmt(uV),sub:`${uL} lots · ${uc.length} txns`,color:'#b8860b'});
+  if(lost.length) kpis.push({label:'LOST',value:fmt(lV),sub:`${lost.reduce((s,r)=>s+r.lots,0)} lots · ${lost.length} txns`,color:'#c62828'});
+  if(listed.length) kpis.push({label:'FOR SALE — LISTED',value:`${listed.reduce((s,r)=>s+r.lots,0)} lots`,sub:`${listed.length} listings`,color:'#1565c0'});
+  if(notlisted.length) kpis.push({label:'NOT LISTED',value:`${notlisted.reduce((s,r)=>s+r.lots,0)} lots`,sub:`${notlisted.length} holdings`,color:'#616161'});
+  kpis.push({label:'TOTAL',value:fmt(tV),sub:`${tL} lots · ${f.length} txns`,color:'#1a1a1a'});
+
+  document.getElementById('kpi-grid').innerHTML=kpis.map(k=>`<div class="kpi-card"><p class="m kpi-label">${k.label}</p><p class="kpi-value" style="color:${k.color}">${k.value}</p><p class="m kpi-sub">${k.sub}</p></div>`).join('');
+
+  // Progress bar
+  const pctClosed=tV>0?(cV/tV)*100:0;
+  const pctUC=tV>0?(uV/tV)*100:0;
+  const pctLost=tV>0?(lV/tV)*100:0;
+  document.getElementById('prog-section').innerHTML=`
+    <div class="prog-header"><span class="m" style="font-size:10px;letter-spacing:.1em;color:#8a8578">VALUE BREAKDOWN</span><span class="m" style="font-size:11px;font-weight:500;color:#2d6a4f">${pctClosed.toFixed(1)}% closed</span></div>
+    <div class="prog-track">
+      <div style="width:${pctClosed}%;background:#2d6a4f;transition:width .6s"></div>
+      <div style="width:${pctUC}%;background:#d4a843;transition:width .6s"></div>
+      <div style="width:${pctLost}%;background:#c62828;transition:width .6s"></div>
+    </div>
+    <div class="prog-legend m">${cV?`<span><span class="ldot" style="background:#2d6a4f"></span>Closed ${fmt(cV)}</span>`:''}${uV?`<span><span class="ldot" style="background:#d4a843"></span>UC ${fmt(uV)}</span>`:''}${lV?`<span><span class="ldot" style="background:#c62828"></span>Lost ${fmt(lV)}</span>`:''}</div>`;
+
+  // Buyer breakdown (UC only)
+  if(uc.length){
+    const g={};uc.filter(r=>r.price>0).forEach(r=>{const n=r.buyer.split(',')[0].trim();if(!g[n])g[n]={lots:0,value:0};g[n].lots+=r.lots;g[n].value+=r.price;});
+    const bl=Object.entries(g).sort((a,b)=>b[1].value-a[1].value);
+    document.getElementById('buyer-section').innerHTML=`<p class="m" style="font-size:10px;letter-spacing:.1em;color:#8a8578;margin-bottom:12px">PENDING BY BUYER</p>`+bl.map(([n,d],i)=>{
+      const p=uV>0?(d.value/uV)*100:0;
+      return`<div class="buyer-row"><div class="buyer-hdr m"><span style="color:#4a4a4a">${esc(n)}</span><span style="color:#8a8578">${fmt(d.value)} · ${d.lots} lots</span></div><div class="buyer-track"><div class="buyer-fill" style="width:${p}%;background:${BCOLORS[i%BCOLORS.length]}"></div></div></div>`;
+    }).join('');
+    document.getElementById('buyer-section').style.display='';
+  } else {
+    document.getElementById('buyer-section').style.display='none';
+  }
+
+  renderOverviewSummary();
+}
+
+// --- Render ---
+function render(){
+  const filtered=getFiltered();
+  const display=sorted(filtered);
+
+  document.getElementById('update-time').textContent='UPDATED '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const tL=allData.reduce((s,r)=>s+r.lots,0);
+  document.getElementById('header-counts').textContent=allData.length+' TRANSACTIONS · '+tL+' LOTS';
+
+  // Filters — dynamic from data
+  const statuses=['All',...[...new Set(allData.map(r=>r.status))]];
+  document.getElementById('filter-group').innerHTML=statuses.map(f=>{
+    const c=f==='All'?allData.length:allData.filter(r=>r.status===f).length;
+    const sm=STATUS_MAP[f];
+    const label=f==='All'?'All':(sm?sm.label:f);
+    return`<button class="fbtn m ${currentFilter===f?'act':''}" onclick="setFilter('${esc(f)}')">${label} (${c})</button>`;
   }).join('');
 
   // Party
-  const pm = document.getElementById('party-match'), pc = document.getElementById('party-clear');
-  if (partySearch) { pm.textContent=filtered.length+' match'+(filtered.length!==1?'es':''); pc.style.display='inline-block'; }
-  else { pm.textContent=''; pc.style.display='none'; }
+  const pm=document.getElementById('party-match'),pc=document.getElementById('party-clear');
+  if(partySearch){pm.textContent=filtered.length+' match'+(filtered.length!==1?'es':'');pc.style.display='inline-block';}
+  else{pm.textContent='';pc.style.display='none';}
 
-  // Table
-  document.getElementById('table-body').innerHTML = filtered.map((row,i) => {
-    const isClosed = row.status==='Closed';
-    const bc = isClosed?'badge-closed':'badge-uc';
-    const dc = isClosed?'dot-closed':'dot-uc';
-    const lbl = isClosed?'CLOSED':'UC';
-    const ts = row.type==='Resell'?`<span class="type-resell">${esc(row.type)}</span>`:`<span class="type-original">${esc(row.type)}</span>`;
-    const pc2 = row.price>0?`<td class="text-right cell-price">${fmt(row.price)}</td>`:`<td class="text-right cell-dim">—</td>`;
-    const pv = row.synergyPct&&row.synergyPct!=='0%'&&row.synergyPct!=='0';
-    const pctC = pv?`<td class="text-right">${esc(row.synergyPct)}</td>`:`<td class="text-right cell-dim">—</td>`;
-    const noteC = row.note?`<td class="text-center"><span class="note-dot" onclick="toggleNote(this)">●<div class="note-tooltip">${esc(row.note)}</div></span></td>`:`<td class="text-center cell-dim">—</td>`;
-    const docC = row.docs.length>0
-      ? `<td class="text-center"><button class="doc-btn" onclick="toggleDocs(this,${i})">📁 ${row.docs.length}</button></td>`
-      : `<td class="text-center cell-dim">—</td>`;
+  // Overview
+  renderOverview();
 
-    let html = `<tr>${'<td><span class="badge '+bc+'"><span class="badge-dot '+dc+'"></span>'+lbl+'</span></td>'}
-      <td class="cell-lot">${esc(row.lot)}</td><td class="text-center">${row.lots}</td><td>${ts}</td>
+  // Table head
+  document.getElementById('thead-row').innerHTML=COLUMNS.map(c=>{
+    const isSorted=sortCol===c.key;
+    const arrow=c.nosort?'':`<span class="sort-arrow">${isSorted?(sortDir==='asc'?'▲':'▼'):'⇅'}</span>`;
+    return`<th class="${c.align} ${isSorted?'sorted':''}" onclick="${c.nosort?'':`doSort('${c.key}')`}">${c.label}${arrow}</th>`;
+  }).join('');
+
+  // Table body
+  document.getElementById('tbody').innerHTML=display.map((row,i)=>{
+    const sm=STATUS_MAP[row.status]||{cls:'b-notlisted',dot:'bd-notlisted',label:row.status};
+    const ts=row.type==='Resell'?`<span class="type-resell">${esc(row.type)}</span>`:`<span class="type-orig">${esc(row.type)}</span>`;
+    const pC=row.price>0?`<td class="tr" style="font-weight:500;color:#1a1a1a">${fmt(row.price)}</td>`:`<td class="tr cell-dim">—</td>`;
+    const spC=row.synergyPct&&row.synergyPct!=='0%'&&row.synergyPct!=='0'?`<td class="tr">${esc(row.synergyPct)}</td>`:`<td class="tr cell-dim">—</td>`;
+    const noteC=row.note?`<td class="tc"><span class="note-dot" onclick="toggleNote(this)">●<div class="note-tip">${esc(row.note)}</div></span></td>`:`<td class="tc cell-dim">—</td>`;
+    const docC=row.docs.length>0?`<td class="tc"><button class="doc-btn" onclick="toggleDocs(this,${i})">📁 ${row.docs.length}</button></td>`:`<td class="tc cell-dim">—</td>`;
+
+    let html=`<tr>
+      <td><span class="badge ${sm.cls}"><span class="bdot ${sm.dot}"></span>${sm.label}</span></td>
+      <td class="cell-lot">${esc(row.lot)}</td><td class="tc">${row.lots}</td><td>${ts}</td>
       <td class="cell-ellipsis">${esc(row.seller)}</td><td class="cell-ellipsis">${esc(row.buyer)}</td>
-      <td>${fmtDate(row.closeDate)}</td>${pc2}${pctC}${noteC}${docC}</tr>`;
+      <td>${fmtD(row.closeDate)}</td>${pC}${spC}${noteC}${docC}</tr>`;
 
-    // Docs panel (hidden by default)
-    if (row.docs.length > 0) {
-      const cards = row.docs.map((d,j) => {
-        const s = DOC_STYLES[d.type]||DOC_STYLES.Other;
-        return `<div class="doc-card" onclick="openModal(${i},${j})"><div class="doc-icon" style="background:${s.bg};color:${s.color}">${s.icon}</div><div style="min-width:0"><div class="doc-name">${esc(d.name)}</div><div class="doc-type-label">${d.type} · Click to preview</div></div><span class="doc-open">View →</span></div>`;
+    if(row.docs.length>0){
+      const cards=row.docs.map((d,j)=>{
+        const s=DS[d.type]||DS.Other;
+        return`<div class="doc-card" onclick="openModal(${i},${j})"><div class="doc-icon" style="background:${s.b};color:${s.c}">${s.i}</div><div style="min-width:0"><div class="doc-name">${esc(d.name)}</div><div class="doc-sub">${d.type} · Click to preview</div></div><span class="doc-open">View →</span></div>`;
       }).join('');
-      html += `<tr class="doc-row" id="docs-panel-${i}" style="display:none;"><td colspan="11" class="doc-panel" style="padding:16px 20px;">
-        <p class="mono" style="font-size:10px;letter-spacing:0.1em;color:#8a8578;margin:0 0 12px;">DOCUMENTS — LOT ${esc(row.lot)} (${esc(row.type)}) · ${row.docs.length} file${row.docs.length!==1?'s':''}</p>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px;">${cards}</div></td></tr>`;
+      html+=`<tr class="doc-row" id="dp-${i}" style="display:none"><td colspan="11" class="doc-panel" style="padding:14px 18px">
+        <p class="m" style="font-size:9px;letter-spacing:.1em;color:#8a8578;margin:0 0 10px">DOCUMENTS — LOT ${esc(row.lot)} (${esc(row.type)}) · ${row.docs.length} file${row.docs.length!==1?'s':''}</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px">${cards}</div></td></tr>`;
     }
     return html;
   }).join('');
 
-  const tLots = filtered.reduce((s,r)=>s+r.lots,0), tPrice = filtered.reduce((s,r)=>s+r.price,0);
-  document.getElementById('table-foot').innerHTML = `<tr>
-    <td colspan="2" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none;">TOTALS</td>
-    <td class="text-center" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none;">${tLots}</td>
-    <td colspan="4" style="border-top:2px solid #1a1a1a;border-bottom:none;"></td>
-    <td class="text-right" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none;">${fmt(tPrice)}</td>
-    <td colspan="3" style="border-top:2px solid #1a1a1a;border-bottom:none;"></td></tr>`;
+  // Footer
+  const tLots=filtered.reduce((s,r)=>s+r.lots,0),tPrice=filtered.reduce((s,r)=>s+r.price,0);
+  document.getElementById('tfoot').innerHTML=`<tr>
+    <td colspan="2" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none">TOTALS</td>
+    <td class="tc" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none">${tLots}</td>
+    <td colspan="4" style="border-top:2px solid #1a1a1a;border-bottom:none"></td>
+    <td class="tr" style="font-weight:600;color:#1a1a1a;border-top:2px solid #1a1a1a;border-bottom:none">${fmt(tPrice)}</td>
+    <td colspan="3" style="border-top:2px solid #1a1a1a;border-bottom:none"></td></tr>`;
 }
 
-function setFilter(f) { currentFilter=f; render(); }
-function setParty(v) { partySearch=v.trim(); render(); }
-function clearParty() { partySearch=''; document.getElementById('party-input').value=''; render(); }
-
-function toggleNote(el) {
-  document.querySelectorAll('.note-dot.open').forEach(n=>{if(n!==el)n.classList.remove('open');});
-  el.classList.toggle('open');
-}
-function toggleDocs(btn, idx) {
-  const panel = document.getElementById('docs-panel-'+idx);
-  if (!panel) return;
-  const isOpen = panel.style.display !== 'none';
-  // Close all
-  document.querySelectorAll('[id^="docs-panel-"]').forEach(p=>p.style.display='none');
+// --- Interactions ---
+function setFilter(f){currentFilter=f;render();}
+function setParty(v){partySearch=v.trim();render();}
+function clearParty(){partySearch='';document.getElementById('party-input').value='';render();}
+function doSort(key){if(sortCol===key){sortDir=sortDir==='asc'?'desc':'asc';}else{sortCol=key;sortDir='asc';}render();}
+function toggleNote(el){document.querySelectorAll('.note-dot.open').forEach(n=>{if(n!==el)n.classList.remove('open');});el.classList.toggle('open');}
+function toggleDocs(btn,idx){
+  const p=document.getElementById('dp-'+idx);if(!p)return;
+  const open=p.style.display!=='none';
+  document.querySelectorAll('[id^="dp-"]').forEach(pp=>pp.style.display='none');
   document.querySelectorAll('.doc-btn.open').forEach(b=>b.classList.remove('open'));
-  if (!isOpen) { panel.style.display=''; btn.classList.add('open'); }
+  if(!open){p.style.display='';btn.classList.add('open');}
 }
+document.addEventListener('click',e=>{if(!e.target.closest('.note-dot'))document.querySelectorAll('.note-dot.open').forEach(n=>n.classList.remove('open'));});
 
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.note-dot')) document.querySelectorAll('.note-dot.open').forEach(n=>n.classList.remove('open'));
-});
-
-// ─── Modal ───
-function openModal(rowIdx, docIdx) {
-  const filtered = getFiltered();
-  const row = filtered[rowIdx];
-  if (!row || !row.docs.length) return;
-  modalDocs = row.docs; modalIdx = docIdx; modalLot = row.lot; modalType = row.type;
-  renderModal();
-  document.getElementById('modal').classList.add('active');
-  document.body.style.overflow = 'hidden';
+// --- Modal ---
+function openModal(rowIdx,docIdx){
+  const display=sorted(getFiltered());
+  const row=display[rowIdx];if(!row||!row.docs.length)return;
+  mDocs=row.docs;mIdx=docIdx;mLot=row.lot;mType=row.type;
+  renderModal();document.getElementById('modal').classList.add('active');document.body.style.overflow='hidden';
 }
-
-function closeModal() {
-  document.getElementById('modal').classList.remove('active');
-  document.getElementById('modal-iframe').src = '';
-  document.body.style.overflow = '';
+function closeModal(){document.getElementById('modal').classList.remove('active');document.getElementById('m-iframe').src='';document.body.style.overflow='';}
+function modalNav(dir){mIdx=(mIdx+dir+mDocs.length)%mDocs.length;renderModal();}
+function renderModal(){
+  const d=mDocs[mIdx],s=DS[d.type]||DS.Other;
+  document.getElementById('m-icon').innerHTML=s.i;document.getElementById('m-icon').style.background=s.b;document.getElementById('m-icon').style.color=s.c;
+  document.getElementById('m-name').textContent=d.name;
+  document.getElementById('m-sub').textContent='Lot '+mLot+' · '+mType+' · '+d.type;
+  document.getElementById('m-counter').textContent=(mIdx+1)+' / '+mDocs.length;
+  document.getElementById('m-drive').href=d.url;
+  document.getElementById('m-iframe').src=drivePreview(d.url);
+  document.getElementById('m-prev').style.display=mDocs.length>1?'':'none';
+  document.getElementById('m-next').style.display=mDocs.length>1?'':'none';
+  document.getElementById('m-side').innerHTML=
+    `<p class="m" style="font-size:9px;letter-spacing:.12em;color:#666;padding:4px 14px 8px;text-transform:uppercase">Documents (${mDocs.length})</p>`+
+    mDocs.map((dd,i)=>{const st=DS[dd.type]||DS.Other;return`<button class="modal-side-btn ${i===mIdx?'active':''}" onclick="mIdx=${i};renderModal()"><span style="font-size:13px">${st.i}</span><div style="min-width:0"><div class="m" style="font-size:10px;color:${i===mIdx?'#f1f5f9':'#999'};font-weight:${i===mIdx?600:400};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(dd.name)}</div><div class="m" style="font-size:8px;color:#555;margin-top:1px">${dd.type}</div></div></button>`;}).join('')+
+    `<div style="padding:14px;margin-top:6px;border-top:1px solid #2a2a2a"><p class="m" style="font-size:8px;color:#555;line-height:1.6">← → Arrow keys<br>ESC to close</p></div>`;
 }
+document.addEventListener('keydown',e=>{if(!document.getElementById('modal').classList.contains('active'))return;if(e.key==='Escape')closeModal();if(e.key==='ArrowLeft')modalNav(-1);if(e.key==='ArrowRight')modalNav(1);});
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
-function modalPrev() { modalIdx = modalIdx > 0 ? modalIdx - 1 : modalDocs.length - 1; renderModal(); }
-function modalNext() { modalIdx = modalIdx < modalDocs.length - 1 ? modalIdx + 1 : 0; renderModal(); }
-
-function renderModal() {
-  const doc = modalDocs[modalIdx];
-  const s = DOC_STYLES[doc.type] || DOC_STYLES.Other;
-  document.getElementById('modal-icon').innerHTML = s.icon;
-  document.getElementById('modal-icon').style.background = s.bg;
-  document.getElementById('modal-icon').style.color = s.color;
-  document.getElementById('modal-name').textContent = doc.name;
-  document.getElementById('modal-sub').textContent = 'Lot ' + modalLot + ' · ' + modalType + ' · ' + doc.type;
-  document.getElementById('modal-counter').textContent = (modalIdx+1) + ' / ' + modalDocs.length;
-  document.getElementById('modal-drive-link').href = doc.url;
-  document.getElementById('modal-iframe').src = drivePreviewUrl(doc.url);
-
-  // Nav visibility
-  document.getElementById('modal-prev').style.display = modalDocs.length > 1 ? '' : 'none';
-  document.getElementById('modal-next').style.display = modalDocs.length > 1 ? '' : 'none';
-
-  // Sidebar
-  document.getElementById('modal-sidebar').innerHTML =
-    `<p class="modal-sidebar-label">Documents (${modalDocs.length})</p>` +
-    modalDocs.map((d,i) => {
-      const st = DOC_STYLES[d.type]||DOC_STYLES.Other;
-      return `<button class="modal-sidebar-btn ${i===modalIdx?'active':''}" onclick="modalIdx=${i};renderModal();">
-        <span style="font-size:14px">${st.icon}</span>
-        <div style="min-width:0"><div class="modal-sidebar-name">${esc(d.name)}</div><div class="modal-sidebar-type">${d.type}</div></div>
-      </button>`;
-    }).join('') +
-    `<div class="modal-sidebar-hint">← → Arrow keys to navigate<br>ESC to close</div>`;
+// --- Fetch ---
+async function fetchData(){
+  document.getElementById('loading').style.display='flex';document.getElementById('error').style.display='none';document.getElementById('dashboard').style.display='none';
+  try{
+    const r=await fetch(CSV_URL);if(!r.ok)throw new Error('HTTP '+r.status);
+    allData=normalize(parseCSV(await r.text()));
+    document.getElementById('loading').style.display='none';document.getElementById('dashboard').style.display='block';render();
+  }catch(e){console.error(e);document.getElementById('loading').style.display='none';document.getElementById('error').style.display='flex';}
 }
-
-// Keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-  if (!document.getElementById('modal').classList.contains('active')) return;
-  if (e.key === 'Escape') closeModal();
-  if (e.key === 'ArrowLeft') modalPrev();
-  if (e.key === 'ArrowRight') modalNext();
-});
-
-// Click outside to close modal
-document.getElementById('modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-// ─── Data Fetch ───
-async function fetchData() {
-  document.getElementById('loading').style.display = 'flex';
-  document.getElementById('error').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'none';
-  try {
-    const res = await fetch(CSV_URL);
-    if (!res.ok) throw new Error('HTTP '+res.status);
-    const text = await res.text();
-    allData = normalize(parseCSV(text));
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'block';
-    render();
-  } catch(e) {
-    console.error(e);
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error').style.display = 'flex';
-  }
-}
-
-fetchData();
-setInterval(fetchData, 60000);
+fetchData();setInterval(fetchData,60000);
 </script>
 </body>
 </html>
