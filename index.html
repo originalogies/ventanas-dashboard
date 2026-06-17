@@ -11,6 +11,7 @@
   --fg:#1a1a1a;--fg2:#4a4a4a;--fg3:#8a8578;--fg4:#b8a88a;--fg5:#c8c4bb;
   --card:#faf9f6;--border:#e5e2db;--border2:#d4d0c8;
   --white:#fff;--hover:#f5f3ee;
+  --tbl-size:12px;
   --green:#2d6a4f;--greenbg:#e8f5e9;--greenbd:#c8e6c9;
   --amber:#b8860b;--amberbg:#fff8e1;--amberbd:#ffe082;--amberfill:#d4a843;
   --red:#c62828;--redbg:#fce4ec;--redbd:#ef9a9a;
@@ -56,6 +57,11 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
 .col-menu-wrap{position:relative}
 .col-btn{padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--card);font-family:'DM Mono',monospace;font-size:10px;color:var(--fg3);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s}
 .col-btn:hover{border-color:var(--fg);color:var(--fg)}
+.font-ctrl{display:flex;align-items:center;gap:0;border:1px solid var(--border2);border-radius:6px;overflow:hidden}
+.font-btn{width:30px;height:30px;border:none;background:var(--card);color:var(--fg3);font-family:'DM Mono',monospace;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.font-btn:hover{background:var(--hover);color:var(--fg)}
+.font-btn:first-child{border-right:1px solid var(--border2)}
+.font-label{padding:0 8px;font-family:'DM Mono',monospace;font-size:9px;color:var(--fg3);border-right:1px solid var(--border2);display:flex;align-items:center;height:30px;white-space:nowrap}
 .col-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:100;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);min-width:200px;padding:8px 0}
 .col-menu.open{display:block}
 .col-menu-item{display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;color:var(--fg2);transition:background .1s}
@@ -101,14 +107,14 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
 
 .tw{padding:0 32px 28px;overflow-x:auto}
 .tbl{width:100%;border-collapse:collapse}
-.tbl th{text-align:left;padding:8px 10px;font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);border-bottom:2px solid var(--fg);white-space:nowrap;cursor:pointer;user-select:none}
+.tbl th{text-align:left;padding:8px 10px;font-family:'DM Mono',monospace;font-size:calc(var(--tbl-size) - 2px);font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);border-bottom:2px solid var(--fg);white-space:nowrap;cursor:pointer;user-select:none}
 .tbl th:hover{color:var(--fg)}
 .tbl th .sa{font-size:8px;margin-left:2px;color:var(--fg4)}
 .tbl th.sorted .sa{color:var(--fg)}
-.tbl td{padding:8px 10px;font-family:'DM Mono',monospace;font-size:10px;color:var(--fg2);border-bottom:1px solid var(--border);vertical-align:top;white-space:nowrap}
+.tbl td{padding:8px 10px;font-family:'DM Mono',monospace;font-size:var(--tbl-size);color:var(--fg2);border-bottom:1px solid var(--border);vertical-align:top;white-space:nowrap}
 .tbl tbody tr:hover td{background:var(--hover)}
 .tbl tr.doc-row:hover td{background:transparent}
-.tbl tfoot td{font-family:'DM Mono',monospace;font-size:10px}
+.tbl tfoot td{font-family:'DM Mono',monospace;font-size:var(--tbl-size)}
 .tr{text-align:right}.tc{text-align:center}
 
 .badge{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;border-radius:3px;font-size:8px;font-weight:500;letter-spacing:.03em}
@@ -192,6 +198,7 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
   <div class="hdr-right">
     <div><div class="live-badge m"><span class="live-dot"></span> LIVE</div><p class="m" style="font-size:9px;color:var(--fg4);margin-top:4px" id="update-time"></p></div>
     <div class="hdr-controls">
+      <div class="font-ctrl"><span class="font-label" id="font-label">12px</span><button class="font-btn" onclick="changeFontSize(-1)" title="Decrease font size">A-</button><button class="font-btn" onclick="changeFontSize(1)" title="Increase font size">A+</button></div>
       <div class="col-menu-wrap"><button class="col-btn m" onclick="toggleColMenu()">⚙ Columns</button><div class="col-menu" id="col-menu"></div></div>
       <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle dark mode">🌙</button>
     </div>
@@ -249,6 +256,12 @@ let mDocs=[],mIdx=0,mLot='',mType='';
 // Theme
 function toggleTheme(){const d=document.documentElement;const dark=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',dark?'':'dark');document.getElementById('theme-btn').textContent=dark?'🌙':'☀️';localStorage.setItem('theme',dark?'':'dark');}
 (function(){const t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');document.addEventListener('DOMContentLoaded',()=>{document.getElementById('theme-btn').textContent='☀️';});}})();
+
+// Font size
+let tblFontSize=parseInt(localStorage.getItem('tblFontSize'))||12;
+function applyFontSize(){document.documentElement.style.setProperty('--tbl-size',tblFontSize+'px');document.getElementById('font-label').textContent=tblFontSize+'px';}
+function changeFontSize(dir){tblFontSize=Math.max(8,Math.min(18,tblFontSize+dir));localStorage.setItem('tblFontSize',tblFontSize);applyFontSize();}
+applyFontSize();
 
 // Column visibility
 function toggleColMenu(){document.getElementById('col-menu').classList.toggle('open');}
