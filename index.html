@@ -93,12 +93,13 @@ body{font-family:'Newsreader',Georgia,serif;background:#faf9f6;color:#1a1a1a;min
 .doc-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;font-family:'DM Mono',monospace;font-size:9px;font-weight:500;cursor:pointer;border:1px solid #d4d0c8;background:#fff;color:#4a4a4a;transition:all .15s}
 .doc-btn:hover,.doc-btn.open{background:#1a1a1a;color:#faf9f6;border-color:#1a1a1a}
 .doc-panel{background:#f5f3ee;border-bottom:2px solid #e5e2db}
-.doc-card{display:flex;align-items:center;gap:10px;padding:9px 14px;background:#fff;border-radius:6px;border:1px solid #e5e2db;cursor:pointer;transition:all .15s}
+.doc-card{display:flex;align-items:center;gap:10px;padding:9px 14px;background:#fff;border-radius:6px;border:1px solid #e5e2db;cursor:pointer;transition:all .15s;overflow:hidden;min-width:0}
 .doc-card:hover{border-color:#1a1a1a;box-shadow:0 2px 8px rgba(0,0,0,.06)}
 .doc-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.doc-name{font-family:'DM Mono',monospace;font-size:11px;color:#1a1a1a;font-weight:500}
+.doc-mid{min-width:0;flex:1;overflow:hidden}
+.doc-name{font-family:'DM Mono',monospace;font-size:11px;color:#1a1a1a;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .doc-sub{font-family:'DM Mono',monospace;font-size:9px;color:#8a8578;margin-top:1px}
-.doc-open{font-family:'DM Mono',monospace;font-size:9px;color:#2d6a4f;margin-left:auto;flex-shrink:0}
+.doc-open{font-family:'DM Mono',monospace;font-size:9px;color:#2d6a4f;margin-left:auto;flex-shrink:0;white-space:nowrap}
 
 /* Modal */
 .modal{position:fixed;inset:0;z-index:9999;background:rgba(10,10,10,.85);backdrop-filter:blur(4px);display:none;flex-direction:column}
@@ -129,7 +130,31 @@ body{font-family:'Newsreader',Georgia,serif;background:#faf9f6;color:#1a1a1a;min
 .footer{padding:16px 32px 28px;border-top:1px solid #e5e2db;font-size:10px;color:#b8a88a;text-align:center;line-height:1.8}
 .footer a{color:#8a8578;text-decoration:underline}
 
-@media(max-width:700px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.hdr,.prog,.buyer-section,.filter-bar,.party-row{padding-left:20px;padding-right:20px}.tw{padding:0 20px 20px}.overview-toggle{padding-left:20px;padding-right:20px}.modal-side{display:none}}
+@media(max-width:700px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .hdr,.prog,.buyer-section,.filter-bar,.party-row{padding-left:16px;padding-right:16px}
+  .tw{padding:0 16px 20px}
+  .overview-toggle{padding-left:16px;padding-right:16px}
+  .modal-side{display:none}
+  .hdr h1{font-size:24px}
+  .kpi-value{font-size:22px}
+  .party-input{width:100%}
+  .party-row{flex-direction:column;align-items:flex-start}
+  .filter-group{gap:4px}
+  .fbtn{padding:5px 10px;font-size:9px}
+  .footer{padding:16px 16px 24px}
+  .tbl td,.tbl th{padding:8px 8px;font-size:10px}
+  .cell-ellipsis{max-width:100px}
+  .doc-panel .doc-card{padding:8px 10px}
+  .modal-top{padding:8px 12px;flex-wrap:wrap;gap:8px}
+}
+@media(max-width:400px){
+  .kpi-grid{grid-template-columns:1fr}
+  .hdr h1{font-size:20px}
+  .kpi-value{font-size:20px}
+  .filter-group{width:100%}
+  .fbtn{flex:1;text-align:center;padding:6px 4px;font-size:8px}
+}
 </style>
 </head>
 <body>
@@ -153,12 +178,12 @@ body{font-family:'Newsreader',Georgia,serif;background:#faf9f6;color:#1a1a1a;min
 
 <!-- Overview Toggle -->
 <div class="overview-toggle" onclick="toggleOverview()">
-<h2 class="m">▾ <span id="ov-label">Overview</span></h2>
+<h2 class="m">▸ <span id="ov-label">Overview</span></h2>
 <div class="overview-summary m" id="ov-summary"></div>
 </div>
 
 <!-- Overview Body -->
-<div class="overview-body" id="ov-body">
+<div class="overview-body collapsed" id="ov-body">
 <div class="kpi-grid" id="kpi-grid"></div>
 <div class="prog" id="prog-section"></div>
 <div class="buyer-section" id="buyer-section"></div>
@@ -239,7 +264,7 @@ const COLUMNS=[
   {key:'docs',label:'Docs',align:'tc',nosort:true},
 ];
 
-let allData=[],currentFilter='All',partySearch='',sortCol='',sortDir='asc',overviewOpen=true;
+let allData=[],currentFilter='All',partySearch='',sortCol='',sortDir='asc',overviewOpen=false;
 let mDocs=[],mIdx=0,mLot='',mType='';
 
 // --- Parsing ---
@@ -415,7 +440,7 @@ function render(){
     if(row.docs.length>0){
       const cards=row.docs.map((d,j)=>{
         const s=DS[d.type]||DS.Other;
-        return`<div class="doc-card" onclick="openModal(${i},${j})"><div class="doc-icon" style="background:${s.b};color:${s.c}">${s.i}</div><div style="min-width:0"><div class="doc-name">${esc(d.name)}</div><div class="doc-sub">${d.type} · Click to preview</div></div><span class="doc-open">View →</span></div>`;
+        return`<div class="doc-card" onclick="openModal(${i},${j})"><div class="doc-icon" style="background:${s.b};color:${s.c}">${s.i}</div><div class="doc-mid"><div class="doc-name" title="${esc(d.name)}">${esc(d.name)}</div><div class="doc-sub">${d.type} · Click to preview</div></div><span class="doc-open">View →</span></div>`;
       }).join('');
       html+=`<tr class="doc-row" id="dp-${i}" style="display:none"><td colspan="11" class="doc-panel" style="padding:14px 18px">
         <p class="m" style="font-size:9px;letter-spacing:.1em;color:#8a8578;margin:0 0 10px">DOCUMENTS — LOT ${esc(row.lot)} (${esc(row.type)}) · ${row.docs.length} file${row.docs.length!==1?'s':''}</p>
