@@ -109,8 +109,7 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
 .tbl{width:100%;border-collapse:collapse}
 .tbl th{text-align:left;padding:8px 10px;font-family:'DM Mono',monospace;font-size:calc(var(--tbl-size) - 2px);font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);border-bottom:2px solid var(--fg);white-space:nowrap;cursor:pointer;user-select:none}
 .tbl th:hover{color:var(--fg)}
-.tbl th .sa{font-size:8px;margin-left:2px;color:var(--fg4)}
-.tbl th.sorted .sa{color:var(--fg)}
+.tbl th.sorted{color:var(--fg)}
 .tbl td{padding:8px 10px;font-family:'DM Mono',monospace;font-size:var(--tbl-size);color:var(--fg2);border-bottom:1px solid var(--border);vertical-align:top;white-space:nowrap}
 .tbl tbody tr:hover td{background:var(--hover)}
 .tbl tr.doc-row:hover td{background:transparent}
@@ -245,11 +244,11 @@ const BC=['#6b7c5e','#b8860b','#8b6f5c','#6b4c8a','#4a7c8c','#5c7c6b','#8c6b4a',
 const DS={Contract:{i:'📄',c:'var(--green)',b:'var(--greenbg)'},Survey:{i:'📐',c:'var(--amber)',b:'var(--amberbg)'},Amendment:{i:'📝',c:'#e65100',b:'#fff3e0'},Closing:{i:'✅',c:'var(--blue)',b:'var(--bluebg)'},Listing:{i:'📋',c:'var(--purple)',b:'var(--purplebg)'},Other:{i:'📎',c:'var(--purple)',b:'var(--purplebg)'}};
 const SM={'Closed':{cls:'b-closed',dot:'bd-closed',label:'CLOSED'},'Under Contract':{cls:'b-uc',dot:'bd-uc',label:'UC'},'Lost':{cls:'b-lost',dot:'bd-lost',label:'LOST'},'For Sale - Listed':{cls:'b-listed',dot:'bd-listed',label:'LISTED'},'For Sale - Not Listed':{cls:'b-notlisted',dot:'bd-notlisted',label:'NOT LISTED'}};
 const COLS=[
+  {key:'rowNum',label:'#',align:'tc',default:true,nosort:true},
   {key:'status',label:'Status',align:'',default:true},
   {key:'lot',label:'Lot(s)',align:'',default:true},
   {key:'txnId',label:'Txn ID',align:'',default:false},
   {key:'address',label:'Address',align:'',default:false},
-  {key:'lots',label:'#',align:'tc',default:true},
   {key:'type',label:'Type',align:'',default:true},
   {key:'seller',label:'Seller',align:'',default:true},
   {key:'buyer',label:'Buyer',align:'',default:true},
@@ -342,7 +341,7 @@ function render(){
 
   const vc=COLS.filter(c=>visibleCols.includes(c.key));
   const colSpan=vc.length;
-  document.getElementById('thead-row').innerHTML=vc.map(c=>{const is=sortCol===c.key;const a=c.nosort?'':`<span class="sa">${is?(sortDir==='asc'?'▲':'▼'):'⇅'}</span>`;return`<th class="${c.align} ${is?'sorted':''}" onclick="${c.nosort?'':`sSort('${c.key}')`}">${c.label}${a}</th>`;}).join('');
+  document.getElementById('thead-row').innerHTML=vc.map(c=>{const is=sortCol===c.key;return`<th class="${c.align} ${is?'sorted':''}" ${c.nosort?'':`onclick="sSort('${c.key}')"` } style="${c.nosort?'':'cursor:pointer'}">${c.label}</th>`;}).join('');
 
   document.getElementById('tbody').innerHTML=display.map((row,i)=>{
     const sm=SM[row.status]||{cls:'b-notlisted',dot:'bd-notlisted',label:row.status};
@@ -351,7 +350,7 @@ function render(){
       lot:`<td class="cell-lot">${esc(row.lot)}</td>`,
       txnId:`<td style="color:var(--fg3)">${esc(row.txnId||'—')}</td>`,
       address:`<td class="cell-ellipsis">${esc(row.address||'—')}</td>`,
-      lots:`<td class="tc">${row.lots}</td>`,
+      rowNum:`<td class="tc" style="color:var(--fg4)">${i+1}</td>`,
       type:`<td>${row.type==='Resell'?`<span class="type-resell">${esc(row.type)}</span>`:`<span class="type-orig">${esc(row.type)}</span>`}</td>`,
       seller:`<td class="cell-ellipsis">${esc(row.seller)}</td>`,
       buyer:`<td class="cell-ellipsis">${esc(row.buyer)}</td>`,
@@ -369,8 +368,9 @@ function render(){
     return html;
   }).join('');
 
-  const tL=filtered.reduce((s,r)=>s+r.lots,0),tP=filtered.reduce((s,r)=>s+r.price,0);
-  const fCells={status:`<td colspan="1" style="font-weight:600;color:var(--fg);border-top:2px solid var(--fg);border-bottom:none">TOTALS</td>`,lot:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,txnId:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,address:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,lots:`<td class="tc" style="font-weight:600;color:var(--fg);border-top:2px solid var(--fg);border-bottom:none">${tL}</td>`,type:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,seller:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,buyer:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,closeDate:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,price:`<td class="tr" style="font-weight:600;color:var(--fg);border-top:2px solid var(--fg);border-bottom:none">${fmt(tP)}</td>`,synergyPct:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,note:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,docs:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`};
+  const tL=display.length,tP=filtered.reduce((s,r)=>s+r.price,0);
+  const fs='font-weight:600;color:var(--fg);border-top:2px solid var(--fg);border-bottom:none',fe='border-top:2px solid var(--fg);border-bottom:none';
+  const fCells={rowNum:`<td class="tc" style="${fs}">${tL}</td>`,status:`<td style="${fs}">TOTALS</td>`,lot:`<td style="${fe}"></td>`,txnId:`<td style="${fe}"></td>`,address:`<td style="${fe}"></td>`,type:`<td style="${fe}"></td>`,seller:`<td style="${fe}"></td>`,buyer:`<td style="${fe}"></td>`,closeDate:`<td style="${fe}"></td>`,price:`<td class="tr" style="${fs}">${fmt(tP)}</td>`,synergyPct:`<td style="${fe}"></td>`,note:`<td style="${fe}"></td>`,docs:`<td style="${fe}"></td>`};
   document.getElementById('tfoot').innerHTML=`<tr>${vc.map(c=>fCells[c.key]).join('')}</tr>`;
 }
 
