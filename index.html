@@ -190,6 +190,14 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
 <div id="error" class="error" style="display:none"><h2 style="font-size:18px;margin-bottom:8px">Unable to load data</h2><p class="m" style="font-size:13px;color:var(--fg3);margin-bottom:16px">Ensure the Google Sheet is shared as "Anyone with the link."</p><button class="retry-btn" onclick="fetchData()">RETRY</button></div>
 
 <div id="dashboard" style="display:none">
+
+<!-- Navigation -->
+<div style="display:flex;justify-content:flex-end;align-items:center;padding:8px 32px;background:var(--bg2);border-bottom:1px solid var(--border);gap:16px;flex-wrap:wrap">
+<span class="m" style="font-size:10px;color:var(--fg3);margin-right:auto;letter-spacing:.08em">DASHBOARD</span>
+<a href="https://drive.google.com/drive/folders/1hS9LfoWcmP2ga9xUrFty2ncms017KFTo?usp=drive_link" target="_blank" class="m" style="font-size:10px;color:var(--fg2);text-decoration:none;display:flex;align-items:center;gap:4px">Customer Packet <span style="font-size:8px">↗</span></a>
+<a href="https://www.ventanaswestlake.com/" target="_blank" class="m" style="font-size:10px;color:var(--fg2);text-decoration:none;display:flex;align-items:center;gap:4px">Ventanas Website <span style="font-size:8px">↗</span></a>
+</div>
+
 <div class="hdr">
   <div class="hdr-logos">
     <img src="https://lh3.googleusercontent.com/d/1m4HCXUxLUKXg79VPgbzkz6tVTmhQzHdb" alt="George &amp; Noonan Real Estate Group" title="George &amp; Noonan Real Estate Group">
@@ -212,7 +220,7 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
   <div class="buyer-section" id="buyer-section"></div>
 </div>
 
-<div class="filter-bar"><p class="m" style="font-size:10px;letter-spacing:.1em;color:var(--fg3)">TRANSACTIONS</p><div class="filter-group" id="filter-group"></div></div>
+<div class="filter-bar"><p class="m" style="font-size:10px;letter-spacing:.1em;color:var(--fg3)">TRANSACTIONS</p><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div class="filter-group" id="filter-group"></div><label id="group-toggle" class="m" style="display:none;align-items:center;gap:5px;font-size:10px;color:var(--fg3);cursor:pointer;padding:5px 12px;border:1px solid var(--border2);border-radius:4px;background:var(--card);white-space:nowrap"><input type="checkbox" id="group-cb" onchange="groupByTxn=this.checked;render()" style="accent-color:var(--fg)"> Group by closing</label></div></div>
 <div class="party-row"><input type="text" id="party-input" class="party-input" placeholder="Filter by seller or buyer…" oninput="setParty(this.value)"><button class="party-clear" id="party-clear" onclick="clearParty()" style="display:none">Clear</button><span class="m" style="font-size:10px;color:var(--fg3)" id="party-match"></span></div>
 
 <div class="tw"><table class="tbl"><thead><tr id="thead-row"></tr></thead><tbody id="tbody"></tbody><tfoot id="tfoot"></tfoot></table></div>
@@ -239,6 +247,8 @@ const SM={'Closed':{cls:'b-closed',dot:'bd-closed',label:'CLOSED'},'Under Contra
 const COLS=[
   {key:'status',label:'Status',align:'',default:true},
   {key:'lot',label:'Lot(s)',align:'',default:true},
+  {key:'txnId',label:'Txn ID',align:'',default:false},
+  {key:'address',label:'Address',align:'',default:false},
   {key:'lots',label:'#',align:'tc',default:true},
   {key:'type',label:'Type',align:'',default:true},
   {key:'seller',label:'Seller',align:'',default:true},
@@ -249,8 +259,8 @@ const COLS=[
   {key:'note',label:'Note',align:'tc',nosort:true,default:true},
   {key:'docs',label:'Docs',align:'tc',nosort:true,default:true},
 ];
-let visibleCols=COLS.map(c=>c.key);
-let allData=[],currentFilter='All',partySearch='',sortCol='',sortDir='asc',overviewOpen=false;
+let visibleCols=COLS.filter(c=>c.default).map(c=>c.key);
+let allData=[],currentFilter='All',partySearch='',sortCol='',sortDir='asc',overviewOpen=false,groupByTxn=false;
 let mDocs=[],mIdx=0,mLot='',mType='';
 
 // Theme
@@ -269,7 +279,7 @@ function renderColMenu(){
   document.getElementById('col-menu').innerHTML=COLS.map(c=>`<label class="col-menu-item"><input type="checkbox" ${visibleCols.includes(c.key)?'checked':''} onchange="toggleCol('${c.key}',this.checked)"> ${c.label}</label>`).join('')+`<div class="col-menu-divider"></div><div class="col-menu-reset" onclick="resetCols()">↻ Reset to default</div>`;
 }
 function toggleCol(key,checked){if(checked){if(!visibleCols.includes(key))visibleCols.push(key);}else{visibleCols=visibleCols.filter(k=>k!==key);}renderColMenu();render();}
-function resetCols(){visibleCols=COLS.map(c=>c.key);renderColMenu();render();}
+function resetCols(){visibleCols=COLS.filter(c=>c.default).map(c=>c.key);renderColMenu();render();}
 document.addEventListener('click',e=>{if(!e.target.closest('.col-menu-wrap'))document.getElementById('col-menu').classList.remove('open');});
 
 // Parsing
@@ -283,9 +293,21 @@ function pC(v){return v?parseFloat(v.replace(/[$,]/g,''))||0:0;}
 function fmt(n){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n);}
 function fD(d){if(!d||d==='TBD'||d==='')return'TBD';const dt=new Date(d);return isNaN(dt)?d:dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
-function norm(rows){return rows.map(r=>{const st=col(r,'Status');if(!st||st==='Totals')return null;return{type:col(r,'Type'),lot:col(r,'L&B')||col(r,'L&amp;B'),lots:parseInt(col(r,'Total Lots'))||0,status:st,seller:col(r,'Seller'),buyer:col(r,'Buyer'),closeDate:col(r,'Closing Date'),price:pC(col(r,'Contract Price')),synergyPct:col(r,'Synergy Compensation')||'',note:col(r,'Note'),docs:pDocs(col(r,'Document'))};}).filter(Boolean);}
+function norm(rows){return rows.map(r=>{const st=col(r,'Status');if(!st||st==='Totals')return null;return{type:col(r,'Type'),lot:col(r,'L&B')||col(r,'L&amp;B'),txnId:col(r,'Transaction'),address:col(r,'Street'),lots:1,status:st,seller:col(r,'Seller'),buyer:col(r,'Buyer'),closeDate:col(r,'Closing Date'),price:pC(col(r,'Contract Price')),synergyPct:col(r,'Synergy Compensation')||'',note:col(r,'Note'),docs:pDocs(col(r,'Document'))};}).filter(Boolean);}
 
-function getF(){let f=currentFilter==='All'?allData:allData.filter(r=>r.status===currentFilter);if(partySearch){const q=partySearch.toLowerCase();f=f.filter(r=>(r.seller||'').toLowerCase().includes(q)||(r.buyer||'').toLowerCase().includes(q));}return f;}
+function getF(){let f=currentFilter==='All'?allData:allData.filter(r=>r.status===currentFilter);if(partySearch){const q=partySearch.toLowerCase();f=f.filter(r=>(r.seller||'').toLowerCase().includes(q)||(r.buyer||'').toLowerCase().includes(q));}if(groupByTxn&&currentFilter==='Closed'){f=groupRows(f);}return f;}
+
+function groupRows(rows){
+  const groups={};const ungrouped=[];
+  rows.forEach(r=>{if(r.txnId){if(!groups[r.txnId])groups[r.txnId]=[];groups[r.txnId].push(r);}else ungrouped.push(r);});
+  const result=[];
+  Object.entries(groups).forEach(([tid,items])=>{
+    if(items.length===1){result.push(items[0]);return;}
+    const merged={...items[0],lot:items.map(r=>r.lot).join(', '),address:items.map(r=>r.address).filter(Boolean).join(', '),lots:items.length,price:items.reduce((s,r)=>s+r.price,0),docs:[].concat(...items.map(r=>r.docs)),note:items.map(r=>r.note).filter(Boolean).join('; '),txnId:tid,_grouped:true};
+    result.push(merged);
+  });
+  return result.concat(ungrouped);
+}
 function doSort(arr){if(!sortCol)return arr;const c=[...arr];c.sort((a,b)=>{let va=a[sortCol],vb=b[sortCol];if(sortCol==='price'||sortCol==='lots')return sortDir==='asc'?(va-vb):(vb-va);if(sortCol==='closeDate'){const da=va&&va!=='TBD'?new Date(va):new Date('2099-01-01'),db=vb&&vb!=='TBD'?new Date(vb):new Date('2099-01-01');return sortDir==='asc'?(da-db):(db-da);}va=(va||'').toString().toLowerCase();vb=(vb||'').toString().toLowerCase();return sortDir==='asc'?va.localeCompare(vb):vb.localeCompare(va);});return c;}
 
 function toggleOverview(){overviewOpen=!overviewOpen;document.getElementById('ov-body').classList.toggle('collapsed',!overviewOpen);document.getElementById('ov-arrow').innerHTML=(overviewOpen?'▾':'▸')+' Overview';renderOvSummary();}
@@ -313,6 +335,7 @@ function render(){
   document.getElementById('update-time').textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   const statuses=['All',...[...new Set(allData.map(r=>r.status))]];
   document.getElementById('filter-group').innerHTML=statuses.map(f=>{const c=f==='All'?allData.length:allData.filter(r=>r.status===f).length;const s=SM[f];return`<button class="fbtn m ${currentFilter===f?'act':''}" onclick="setFilter('${esc(f)}')">${f==='All'?'All':(s?s.label:f)} (${c})</button>`;}).join('');
+  document.getElementById('group-toggle').style.display=currentFilter==='Closed'?'flex':'none';
   const pm=document.getElementById('party-match'),pc=document.getElementById('party-clear');
   if(partySearch){pm.textContent=filtered.length+' match'+(filtered.length!==1?'es':'');pc.style.display='inline-block';}else{pm.textContent='';pc.style.display='none';}
   renderOverview();
@@ -326,6 +349,8 @@ function render(){
     const cells={
       status:`<td><span class="badge ${sm.cls}"><span class="bdot ${sm.dot}"></span>${sm.label}</span></td>`,
       lot:`<td class="cell-lot">${esc(row.lot)}</td>`,
+      txnId:`<td style="color:var(--fg3)">${esc(row.txnId||'—')}</td>`,
+      address:`<td class="cell-ellipsis">${esc(row.address||'—')}</td>`,
       lots:`<td class="tc">${row.lots}</td>`,
       type:`<td>${row.type==='Resell'?`<span class="type-resell">${esc(row.type)}</span>`:`<span class="type-orig">${esc(row.type)}</span>`}</td>`,
       seller:`<td class="cell-ellipsis">${esc(row.seller)}</td>`,
@@ -345,11 +370,11 @@ function render(){
   }).join('');
 
   const tL=filtered.reduce((s,r)=>s+r.lots,0),tP=filtered.reduce((s,r)=>s+r.price,0);
-  const fCells={status:`<td colspan="1" style="font-weight:600;color:var(--fg);border-top:2px solid var(--fg);border-bottom:none">TOTALS</td>`,lot:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,lots:`<td class="tc" style="font-weight:600;color:var(--fg);border-top:2px solid var(--fg);border-bottom:none">${tL}</td>`,type:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,seller:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,buyer:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,closeDate:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,price:`<td class="tr" style="font-weight:600;color:var(--fg);border-top:2px solid var(--fg);border-bottom:none">${fmt(tP)}</td>`,synergyPct:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,note:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,docs:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`};
+  const fCells={status:`<td colspan="1" style="font-weight:600;color:var(--fg);border-top:2px solid var(--fg);border-bottom:none">TOTALS</td>`,lot:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,txnId:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,address:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,lots:`<td class="tc" style="font-weight:600;color:var(--fg);border-top:2px solid var(--fg);border-bottom:none">${tL}</td>`,type:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,seller:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,buyer:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,closeDate:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,price:`<td class="tr" style="font-weight:600;color:var(--fg);border-top:2px solid var(--fg);border-bottom:none">${fmt(tP)}</td>`,synergyPct:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,note:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`,docs:`<td style="border-top:2px solid var(--fg);border-bottom:none"></td>`};
   document.getElementById('tfoot').innerHTML=`<tr>${vc.map(c=>fCells[c.key]).join('')}</tr>`;
 }
 
-function setFilter(f){currentFilter=f;render();}
+function setFilter(f){currentFilter=f;if(f!=='Closed'){groupByTxn=false;const cb=document.getElementById('group-cb');if(cb)cb.checked=false;}render();}
 function setParty(v){partySearch=v.trim();render();}
 function clearParty(){partySearch='';document.getElementById('party-input').value='';render();}
 function sSort(k){if(sortCol===k)sortDir=sortDir==='asc'?'desc':'asc';else{sortCol=k;sortDir='asc';}render();}
