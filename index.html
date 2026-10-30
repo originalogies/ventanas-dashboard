@@ -295,8 +295,8 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
 
 <div class="hdr">
   <div class="hdr-logos">
-    <img src="https://lh3.googleusercontent.com/d/1m4HCXUxLUKXg79VPgbzkz6tVTmhQzHdb" alt="George &amp; Noonan Real Estate Group" title="George &amp; Noonan Real Estate Group">
-    <img src="https://lh3.googleusercontent.com/d/1d3Yo8OrqMphr1hmSGB1bBfECxIpit-hK" alt="Ventanas of Westlake" title="Ventanas of Westlake">
+    <img src="logo-gn.png" alt="George &amp; Noonan Real Estate Group" title="George &amp; Noonan Real Estate Group">
+    <img src="logo-ventanas.png" alt="Ventanas of Westlake" title="Ventanas of Westlake">
   </div>
   <div class="hdr-right">
     <div class="settings-wrap">
@@ -341,28 +341,37 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
 const SHEET_ID='14ABn9-kSRCtzaFV3m58R5Y1372RTx-ljchnq3Uf2450',CSV_URL=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
 const BC=['#6b7c5e','#b8860b','#8b6f5c','#6b4c8a','#4a7c8c','#5c7c6b','#8c6b4a','#4a6b5c'];
 const DS={Contract:{i:'📄',c:'var(--green)',b:'var(--greenbg)'},Survey:{i:'📐',c:'var(--amber)',b:'var(--amberbg)'},Amendment:{i:'📝',c:'#e65100',b:'#fff3e0'},Closing:{i:'✅',c:'var(--blue)',b:'var(--bluebg)'},Listing:{i:'📋',c:'var(--purple)',b:'var(--purplebg)'},Other:{i:'📎',c:'var(--purple)',b:'var(--purplebg)'}};
-const SM={'Closed':{cls:'b-closed',dot:'bd-closed',label:'CLOSED'},'Under Contract':{cls:'b-uc',dot:'bd-uc',label:'UC'},'Lost':{cls:'b-lost',dot:'bd-lost',label:'LOST'},'For Sale - Listed':{cls:'b-listed',dot:'bd-listed',label:'LISTED'},'For Sale - Not Listed':{cls:'b-notlisted',dot:'bd-notlisted',label:'NOT LISTED'}};
+// Keys are the sheet's Status values; listed in filter order. label = badge, name = filter/KPI text
+const SM={'For Sale - Listed':{cls:'b-listed',dot:'bd-listed',label:'ACTIVE - LISTED',name:'Active - Listed'},'For Sale - Not Listed':{cls:'b-notlisted',dot:'bd-notlisted',label:'ACTIVE - NOT LISTED',name:'Active - Not Listed'},'Under Contract':{cls:'b-uc',dot:'bd-uc',label:'PENDING',name:'Pending'},'Closed':{cls:'b-closed',dot:'bd-closed',label:'CLOSED',name:'Closed'},'Lost':{cls:'b-lost',dot:'bd-lost',label:'LOST',name:'Lost'}};
 const COLS=[
-  {key:'rowNum',label:'#',align:'tc',default:true,nosort:true},
-  {key:'status',label:'Status',align:'',default:true},
-  {key:'lot',label:'Lot(s)',align:'',default:true},
-  {key:'txnId',label:'Txn ID',align:'',default:false},
-  {key:'address',label:'Address',align:'',default:false},
-  {key:'type',label:'Type',align:'',default:true},
-  {key:'seller',label:'Seller',align:'',default:true},
-  {key:'buyer',label:'Buyer',align:'',default:true},
-  {key:'closeDate',label:'Close Date',align:'',default:true},
-  {key:'listPrice',label:'List Price',align:'tr',default:true},
-  {key:'price',label:'Close Price',align:'tr',default:true},
-  {key:'synergyPct',label:'Synergy %',align:'tr',default:true},
-  {key:'note',label:'Note',align:'tc',nosort:true,default:true},
-  {key:'docs',label:'Docs',align:'tc',nosort:true,default:true},
+  {key:'rowNum',label:'#',align:'tc',nosort:true},
+  {key:'status',label:'Status',align:''},
+  {key:'lot',label:'Lot(s)',align:''},
+  {key:'txnId',label:'Txn ID',align:''},
+  {key:'address',label:'Address',align:''},
+  {key:'type',label:'Type',align:''},
+  {key:'seller',label:'Seller',align:''},
+  {key:'buyer',label:'Buyer',align:''},
+  {key:'closeDate',label:'Close Date',align:''},
+  {key:'listPrice',label:'List Price',align:'tr'},
+  {key:'price',label:'Close Price',align:'tr'},
+  {key:'grossComp',label:'Gross Compensation',align:'tr'},
+  {key:'synergyPct',label:'Synergy %',align:'tr'},
+  {key:'synergyAmt',label:'Synergy $',align:'tr'},
+  {key:'note',label:'Note',align:'tc',nosort:true},
+  {key:'docs',label:'Docs',align:'tc',nosort:true},
 ];
-function defaultCols(){return COLS.filter(c=>c.default).map(c=>c.key);}
 // knownCols records which fields existed when the user saved, so fields added later still appear by default
-function loadCols(){try{const s=JSON.parse(localStorage.getItem('visibleCols'));if(Array.isArray(s)){const valid=s.filter(k=>COLS.some(c=>c.key===k));if(valid.length){const known=JSON.parse(localStorage.getItem('knownCols')||'null')||['rowNum','status','lot','txnId','address','type','seller','buyer','closeDate','price','synergyPct','note','docs'];COLS.forEach(c=>{if(c.default&&!known.includes(c.key)&&!valid.includes(c.key))valid.push(c.key);});return valid;}}}catch(e){}return defaultCols();}
-function saveCols(){try{localStorage.setItem('visibleCols',JSON.stringify(visibleCols));localStorage.setItem('knownCols',JSON.stringify(COLS.map(c=>c.key)));}catch(e){}}
-let visibleCols=loadCols();
+// Each status filter has its own default fields; a viewer's changes are saved per preset
+const FIELD_PRESETS={
+  all:['lot','address','seller','closeDate','price','synergyPct','docs'],
+  active:['lot','address','seller','listPrice','grossComp','docs'],
+  closing:['lot','address','seller','buyer','price','synergyAmt','closeDate','docs'],
+};
+function presetFor(f){return f==='Under Contract'||f==='Closed'?'closing':f==='All'?'all':'active';}
+function loadCols(p){try{const s=JSON.parse(localStorage.getItem('fields_'+p));if(Array.isArray(s)){const valid=s.filter(k=>COLS.some(c=>c.key===k));if(valid.length)return valid;}}catch(e){}return [...FIELD_PRESETS[p]];}
+function saveCols(){try{localStorage.setItem('fields_'+presetFor(currentFilter),JSON.stringify(visibleCols));}catch(e){}}
+let visibleCols=loadCols('all');
 let allData=[],currentFilter='All',partySearch='',sortCol='',sortDir='asc',overviewOpen=false,groupBy='none';
 let collapsedGroups=new Set(),currentGroupKeys=[],displayRows=[];
 const GROUPS=[{k:'none',l:'None'},{k:'closing',l:'Closing'},{k:'seller',l:'Seller'},{k:'buyer',l:'Buyer'}];
@@ -391,7 +400,7 @@ let viewMode='cards';try{if(localStorage.getItem('mobileView')==='table')viewMod
 function setView(v){viewMode=v;try{localStorage.setItem('mobileView',v);}catch(e){}applyView();}
 function applyView(){document.getElementById('tw').classList.toggle('cards',viewMode==='cards');document.getElementById('view-cards').classList.toggle('act',viewMode==='cards');document.getElementById('view-table').classList.toggle('act',viewMode==='table');}
 document.addEventListener('DOMContentLoaded',applyView);
-function resetCols(){visibleCols=defaultCols();localStorage.removeItem('visibleCols');renderColMenu();render();}
+function resetCols(){const p=presetFor(currentFilter);visibleCols=[...FIELD_PRESETS[p]];try{localStorage.removeItem('fields_'+p);}catch(e){}renderColMenu();render();}
 document.addEventListener('click',e=>{if(!e.target.closest('.col-menu-wrap'))document.getElementById('col-menu').classList.remove('open');});
 
 // Group by
@@ -413,11 +422,11 @@ function pC(v){return v?parseFloat(v.replace(/[$,]/g,''))||0:0;}
 function fmt(n){return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0,maximumFractionDigits:0}).format(n);}
 function fD(d){if(!d||d==='TBD'||d==='')return'TBD';const dt=new Date(d);return isNaN(dt)?d:dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
 function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
-function norm(rows){return rows.map(r=>{const st=col(r,'Status');if(!st||st==='Totals')return null;return{type:col(r,'Type'),lot:col(r,'L&B')||col(r,'L&amp;B'),txnId:col(r,'Transaction'),address:col(r,'Street'),lots:1,status:st,seller:col(r,'Seller'),buyer:col(r,'Buyer'),closeDate:col(r,'Closing Date'),listPrice:pC(col(r,'Sale Price')),price:pC(col(r,'Contract Price')),synergyPct:col(r,'Synergy Compensation')||'',note:col(r,'Note'),docs:pDocs(col(r,'Document'))};}).filter(Boolean);}
+function norm(rows){return rows.map(r=>{const st=col(r,'Status');if(!st||st==='Totals')return null;return{type:col(r,'Type'),lot:col(r,'L&B')||col(r,'L&amp;B'),txnId:col(r,'Transaction'),address:col(r,'Street'),lots:1,status:st,seller:col(r,'Seller'),buyer:col(r,'Buyer'),closeDate:col(r,'Closing Date'),listPrice:pC(col(r,'List Price')||col(r,'Sale Price')),price:pC(col(r,'Contract Price')),grossComp:col(r,'Gross Compensation')||'',synergyPct:col(r,'Synergy Compensation')||'',synergyAmt:pC(col(r,'Synergy Compensation Total')),note:col(r,'Note'),docs:pDocs(col(r,'Document'))};}).filter(Boolean);}
 
 function getF(){let f=currentFilter==='All'?allData:allData.filter(r=>r.status===currentFilter);if(partySearch){const q=partySearch.toLowerCase();f=f.filter(r=>(r.seller||'').toLowerCase().includes(q)||(r.buyer||'').toLowerCase().includes(q));}return f;}
 function groupKeyFn(){return groupBy==='closing'?(r=>r.txnId||'—'):groupBy==='seller'?(r=>(r.seller||'').trim()||'—'):(r=>(r.buyer||'').trim()||'—');}
-function doSort(arr){if(!sortCol)return arr;const c=[...arr];c.sort((a,b)=>{let va=a[sortCol],vb=b[sortCol];if(sortCol==='price'||sortCol==='listPrice'||sortCol==='lots')return sortDir==='asc'?(va-vb):(vb-va);if(sortCol==='closeDate'){const da=va&&va!=='TBD'?new Date(va):new Date('2099-01-01'),db=vb&&vb!=='TBD'?new Date(vb):new Date('2099-01-01');return sortDir==='asc'?(da-db):(db-da);}va=(va||'').toString().toLowerCase();vb=(vb||'').toString().toLowerCase();return sortDir==='asc'?va.localeCompare(vb):vb.localeCompare(va);});return c;}
+function doSort(arr){if(!sortCol)return arr;const c=[...arr];c.sort((a,b)=>{let va=a[sortCol],vb=b[sortCol];if(sortCol==='price'||sortCol==='listPrice'||sortCol==='synergyAmt'||sortCol==='lots')return sortDir==='asc'?(va-vb):(vb-va);if(sortCol==='closeDate'){const da=va&&va!=='TBD'?new Date(va):new Date('2099-01-01'),db=vb&&vb!=='TBD'?new Date(vb):new Date('2099-01-01');return sortDir==='asc'?(da-db):(db-da);}va=(va||'').toString().toLowerCase();vb=(vb||'').toString().toLowerCase();return sortDir==='asc'?va.localeCompare(vb):vb.localeCompare(va);});return c;}
 
 function toggleOverview(){overviewOpen=!overviewOpen;document.getElementById('ov-body').classList.toggle('collapsed',!overviewOpen);document.getElementById('ov-arrow').innerHTML=(overviewOpen?'▾':'▸')+' Overview';renderOvSummary();}
 function renderOvSummary(){const f=getF(),el=document.getElementById('ov-summary');if(overviewOpen){el.innerHTML='';return;}el.innerHTML=`<span>${f.length} txns</span><span>${f.reduce((s,r)=>s+r.lots,0)} lots</span><span>${fmt(f.reduce((s,r)=>s+r.price,0))}</span>`;}
@@ -426,15 +435,15 @@ function renderOverview(){
   const f=getF(),cl=f.filter(r=>r.status==='Closed'),uc=f.filter(r=>r.status==='Under Contract'),lo=f.filter(r=>r.status==='Lost'),li=f.filter(r=>r.status==='For Sale - Listed'),nl=f.filter(r=>r.status==='For Sale - Not Listed');
   const cV=cl.reduce((s,r)=>s+r.price,0),uV=uc.reduce((s,r)=>s+r.price,0),lV=lo.reduce((s,r)=>s+r.price,0),tV=f.reduce((s,r)=>s+r.price,0);
   const kpis=[];
+  if(li.length)kpis.push({l:'ACTIVE — LISTED',v:`${li.reduce((a,r)=>a+r.lots,0)} lots`,s:`${li.length} listings`,c:'var(--blue)'});
+  if(nl.length)kpis.push({l:'ACTIVE — NOT LISTED',v:`${nl.reduce((a,r)=>a+r.lots,0)} lots`,s:`${nl.length} holdings`,c:'var(--gray)'});
+  if(uc.length)kpis.push({l:'PENDING',v:fmt(uV),s:`${uc.reduce((a,r)=>a+r.lots,0)} lots · ${uc.length} txns`,c:'var(--amber)'});
   if(cl.length)kpis.push({l:'CLOSED',v:fmt(cV),s:`${cl.reduce((a,r)=>a+r.lots,0)} lots · ${cl.length} txns`,c:'var(--green)'});
-  if(uc.length)kpis.push({l:'UNDER CONTRACT',v:fmt(uV),s:`${uc.reduce((a,r)=>a+r.lots,0)} lots · ${uc.length} txns`,c:'var(--amber)'});
   if(lo.length)kpis.push({l:'LOST',v:fmt(lV),s:`${lo.reduce((a,r)=>a+r.lots,0)} lots · ${lo.length} txns`,c:'var(--red)'});
-  if(li.length)kpis.push({l:'FOR SALE — LISTED',v:`${li.reduce((a,r)=>a+r.lots,0)} lots`,s:`${li.length} listings`,c:'var(--blue)'});
-  if(nl.length)kpis.push({l:'NOT LISTED',v:`${nl.reduce((a,r)=>a+r.lots,0)} lots`,s:`${nl.length} holdings`,c:'var(--gray)'});
   kpis.push({l:'TOTAL',v:fmt(tV),s:`${f.reduce((a,r)=>a+r.lots,0)} lots · ${f.length} txns`,c:'var(--fg)'});
   document.getElementById('kpi-grid').innerHTML=kpis.map(k=>`<div class="kpi-card"><p class="m kpi-label">${k.l}</p><p class="kpi-value" style="color:${k.c}">${k.v}</p><p class="m kpi-sub">${k.s}</p></div>`).join('');
   const pC2=tV>0?(cV/tV)*100:0,pU=tV>0?(uV/tV)*100:0,pL2=tV>0?(lV/tV)*100:0;
-  document.getElementById('prog-section').innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span class="m" style="font-size:9px;letter-spacing:.1em;color:var(--fg3)">VALUE BREAKDOWN</span><span class="m" style="font-size:10px;font-weight:500;color:var(--green)">${pC2.toFixed(1)}% closed</span></div><div class="prog-track"><div style="width:${pC2}%;background:var(--green);transition:width .6s"></div><div style="width:${pU}%;background:var(--amberfill);transition:width .6s"></div><div style="width:${pL2}%;background:var(--red);transition:width .6s"></div></div><div class="prog-legend m">${cV?`<span><span class="ldot" style="background:var(--green)"></span>Closed ${fmt(cV)}</span>`:''}${uV?`<span><span class="ldot" style="background:var(--amberfill)"></span>UC ${fmt(uV)}</span>`:''}${lV?`<span><span class="ldot" style="background:var(--red)"></span>Lost ${fmt(lV)}</span>`:''}</div>`;
+  document.getElementById('prog-section').innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:5px"><span class="m" style="font-size:9px;letter-spacing:.1em;color:var(--fg3)">VALUE BREAKDOWN</span><span class="m" style="font-size:10px;font-weight:500;color:var(--green)">${pC2.toFixed(1)}% closed</span></div><div class="prog-track"><div style="width:${pC2}%;background:var(--green);transition:width .6s"></div><div style="width:${pU}%;background:var(--amberfill);transition:width .6s"></div><div style="width:${pL2}%;background:var(--red);transition:width .6s"></div></div><div class="prog-legend m">${cV?`<span><span class="ldot" style="background:var(--green)"></span>Closed ${fmt(cV)}</span>`:''}${uV?`<span><span class="ldot" style="background:var(--amberfill)"></span>Pending ${fmt(uV)}</span>`:''}${lV?`<span><span class="ldot" style="background:var(--red)"></span>Lost ${fmt(lV)}</span>`:''}</div>`;
   if(uc.length){const g={};uc.filter(r=>r.price>0).forEach(r=>{const n=r.buyer.split(',')[0].trim();if(!g[n])g[n]={l:0,v:0};g[n].l+=r.lots;g[n].v+=r.price;});document.getElementById('buyer-section').innerHTML=`<p class="m" style="font-size:9px;letter-spacing:.1em;color:var(--fg3);margin-bottom:10px">PENDING BY BUYER</p>`+Object.entries(g).sort((a,b)=>b[1].v-a[1].v).map(([n,d],i)=>`<div class="buyer-row"><div class="buyer-hdr m"><span style="color:var(--fg2)">${esc(n)}</span><span style="color:var(--fg3)">${fmt(d.v)} · ${d.l} lots</span></div><div class="buyer-track"><div class="buyer-fill" style="width:${uV>0?(d.v/uV)*100:0}%;background:${BC[i%BC.length]}"></div></div></div>`).join('');document.getElementById('buyer-section').style.display='';}else{document.getElementById('buyer-section').style.display='none';}
   renderOvSummary();
 }
@@ -442,14 +451,16 @@ function renderOverview(){
 function render(){
   const filtered=getF();
   document.getElementById('update-time').textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-  const statuses=['All',...[...new Set(allData.map(r=>r.status))]];
-  document.getElementById('filter-group').innerHTML=statuses.map(f=>{const c=f==='All'?allData.length:allData.filter(r=>r.status===f).length;const s=SM[f];return`<button class="fbtn m ${currentFilter===f?'act':''}" onclick="setFilter('${esc(f)}')">${f==='All'?'All':(s?s.label:f)} (${c})</button>`;}).join('');
-  document.getElementById('filter-select').innerHTML=statuses.map(f=>{const c=f==='All'?allData.length:allData.filter(r=>r.status===f).length;const s=SM[f];return`<option value="${esc(f)}" ${currentFilter===f?'selected':''}>${f==='All'?'All':(s?s.label:f)} (${c})</option>`;}).join('');
+  const present=new Set(allData.map(r=>r.status));
+  const statuses=['All',...Object.keys(SM).filter(k=>present.has(k)),...[...present].filter(k=>!SM[k])];
+  document.getElementById('filter-group').innerHTML=statuses.map(f=>{const c=f==='All'?allData.length:allData.filter(r=>r.status===f).length;const s=SM[f];return`<button class="fbtn m ${currentFilter===f?'act':''}" onclick="setFilter('${esc(f)}')">${f==='All'?'All':(s?s.name:f)} (${c})</button>`;}).join('');
+  document.getElementById('filter-select').innerHTML=statuses.map(f=>{const c=f==='All'?allData.length:allData.filter(r=>r.status===f).length;const s=SM[f];return`<option value="${esc(f)}" ${currentFilter===f?'selected':''}>${f==='All'?'All':(s?s.name:f)} (${c})</option>`;}).join('');
   const pm=document.getElementById('party-match'),pc=document.getElementById('party-clear');
   if(partySearch){pm.textContent=filtered.length+' match'+(filtered.length!==1?'es':'');pc.style.display='inline-block';}else{pm.textContent='';pc.style.display='none';}
   renderOverview();
 
-  const vc=COLS.filter(c=>visibleCols.includes(c.key));
+  const order=FIELD_PRESETS[presetFor(currentFilter)],rank=c=>{const i=order.indexOf(c.key);return i>=0?i:100+COLS.indexOf(c);};
+  const vc=COLS.filter(c=>visibleCols.includes(c.key)).sort((a,b)=>rank(a)-rank(b));
   const colSpan=vc.length;
   document.getElementById('thead-row').innerHTML=vc.map(c=>{const is=sortCol===c.key;return`<th class="${c.align} ${is?'sorted':''}" ${c.nosort?'':`onclick="sSort('${c.key}')"` } style="${c.nosort?'':'cursor:pointer'}">${c.label}</th>`;}).join('');
 
@@ -467,6 +478,8 @@ function render(){
       closeDate:`<td>${fD(row.closeDate)}</td>`,
       listPrice:row.listPrice>0?`<td class="tr">${fmt(row.listPrice)}</td>`:`<td class="tr cell-dim">—</td>`,
       price:row.price>0?`<td class="tr" style="font-weight:500;color:var(--fg)">${fmt(row.price)}</td>`:`<td class="tr cell-dim">—</td>`,
+      grossComp:row.grossComp&&row.grossComp!=='0%'&&row.grossComp!=='0'?`<td class="tr">${esc(row.grossComp)}</td>`:`<td class="tr cell-dim">—</td>`,
+      synergyAmt:row.synergyAmt>0?`<td class="tr">${fmt(row.synergyAmt)}</td>`:`<td class="tr cell-dim">—</td>`,
       synergyPct:row.synergyPct&&row.synergyPct!=='0%'&&row.synergyPct!=='0'?`<td class="tr">${esc(row.synergyPct)}</td>`:`<td class="tr cell-dim">—</td>`,
       note:row.note?`<td class="tc"><span class="note-dot" onclick="tNote(this)">●<div class="note-tip">${esc(row.note)}</div></span></td>`:`<td class="tc cell-dim">—</td>`,
       docs:row.docs.length>0?`<td class="tc"><button class="doc-btn" onclick="tDocs(this,${i})">📁 ${row.docs.length}</button></td>`:`<td class="tc cell-dim">—</td>`,
@@ -499,13 +512,14 @@ function render(){
   }
   document.getElementById('tbody').innerHTML=bodyHtml;
 
-  const tL=filtered.length,tP=filtered.reduce((s,r)=>s+r.price,0);
+  const tL=filtered.length,tP=filtered.reduce((s,r)=>s+r.price,0),tLP=filtered.reduce((s,r)=>s+r.listPrice,0),tS=filtered.reduce((s,r)=>s+r.synergyAmt,0);
   const fs='font-weight:600;color:var(--fg);border-top:2px solid var(--fg);border-bottom:none',fe='border-top:2px solid var(--fg);border-bottom:none';
-  const fCells={rowNum:`<td class="tc" style="${fs}">${tL}</td>`,status:`<td style="${fs}">TOTALS</td>`,lot:`<td style="${fe}"></td>`,txnId:`<td style="${fe}"></td>`,address:`<td style="${fe}"></td>`,type:`<td style="${fe}"></td>`,seller:`<td style="${fe}"></td>`,buyer:`<td style="${fe}"></td>`,closeDate:`<td style="${fe}"></td>`,listPrice:`<td style="${fe}"></td>`,price:`<td class="tr" style="${fs}">${fmt(tP)}</td>`,synergyPct:`<td style="${fe}"></td>`,note:`<td style="${fe}"></td>`,docs:`<td style="${fe}"></td>`};
+  const fCells={rowNum:`<td class="tc" style="${fs}">${tL}</td>`,status:`<td style="${fs}">TOTALS</td>`,lot:`<td style="${fe}"></td>`,txnId:`<td style="${fe}"></td>`,address:`<td style="${fe}"></td>`,type:`<td style="${fe}"></td>`,seller:`<td style="${fe}"></td>`,buyer:`<td style="${fe}"></td>`,closeDate:`<td style="${fe}"></td>`,listPrice:`<td class="tr" style="${fs}">${tLP?fmt(tLP):''}</td>`,grossComp:`<td style="${fe}"></td>`,synergyAmt:`<td class="tr" style="${fs}">${tS?fmt(tS):''}</td>`,price:`<td class="tr" style="${fs}">${fmt(tP)}</td>`,synergyPct:`<td style="${fe}"></td>`,note:`<td style="${fe}"></td>`,docs:`<td style="${fe}"></td>`};
+  if(!vc.some(c=>c.key==='rowNum'||c.key==='status')&&vc.length)fCells[vc[0].key]=`<td style="${fs}">TOTALS (${tL})</td>`;
   document.getElementById('tfoot').innerHTML=`<tr>${vc.map(c=>fCells[c.key]).join('')}</tr>`;
 }
 
-function setFilter(f){currentFilter=f;render();}
+function setFilter(f){currentFilter=f;visibleCols=loadCols(presetFor(f));renderColMenu();render();}
 function setParty(v){partySearch=v.trim();render();}
 function clearParty(){partySearch='';document.getElementById('party-input').value='';render();}
 function sSort(k){if(sortCol===k)sortDir=sortDir==='asc'?'desc':'asc';else{sortCol=k;sortDir='asc';}render();}
