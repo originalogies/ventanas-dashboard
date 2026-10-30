@@ -53,6 +53,14 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
 .theme-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border2);background:var(--card);color:var(--fg2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .theme-btn:hover{border-color:var(--fg);color:var(--fg)}
 
+/* Settings gear menu */
+.settings-wrap{position:relative}
+.settings-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:100;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);min-width:210px;padding:6px}
+.settings-menu.open{display:block}
+.settings-item{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:7px 8px}
+.settings-item+.settings-item{border-top:1px solid var(--border)}
+.settings-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--fg2);white-space:nowrap}
+
 /* Column visibility */
 .col-menu-wrap{position:relative}
 .col-btn{padding:6px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--card);font-family:'DM Mono',monospace;font-size:10px;color:var(--fg3);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s}
@@ -97,6 +105,12 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
 
 .filter-bar{padding:14px 32px 6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .filter-group{display:flex;flex-wrap:wrap;gap:4px}
+.filter-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filter-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.group-menu-wrap{position:relative}
+.col-btn.act{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.filter-select{display:none;width:100%;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.04em;padding:10px 12px;border:1px solid var(--border2);border-radius:6px;background:var(--card);color:var(--fg);cursor:pointer;outline:none}
+.filter-select:focus{border-color:var(--fg)}
 .fbtn{padding:5px 12px;border:1px solid var(--border2);background:transparent;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;transition:all .15s;color:var(--fg3);border-radius:4px;white-space:nowrap}
 .fbtn.act{background:var(--fg);color:var(--bg);border-color:var(--fg)}
 .party-row{padding:4px 32px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -170,16 +184,17 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
 .error{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;padding:32px;background:var(--bg)}
 .retry-btn{padding:10px 28px;background:var(--fg);color:var(--bg);border:none;border-radius:4px;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer}
 .footer{padding:14px 32px 24px;border-top:1px solid var(--border);font-size:10px;color:var(--fg4);text-align:center;line-height:1.8}
+.footer-live{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px}
+.footer-live #update-time{font-size:10px;color:var(--fg3)}
 .footer a{color:var(--fg3);text-decoration:underline}
 
 @media(max-width:700px){
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .hdr,.prog,.buyer-section,.filter-bar,.party-row,.overview-toggle{padding-left:16px;padding-right:16px}
-  .hdr{flex-direction:column;align-items:center;text-align:center;gap:12px}
-  .hdr-logos{justify-content:center}
-  .hdr-logos img{height:32px}
-  .hdr-right{justify-content:center;width:100%}
-  .hdr-controls{justify-content:center;width:100%}
+  .hdr{gap:10px;flex-wrap:nowrap}
+  .hdr-logos{gap:10px;flex:1 1 auto;min-width:0}
+  .hdr-logos img{height:28px}
+  .hdr-right{gap:6px;flex-shrink:0}
   .font-ctrl{flex:none}
   .font-btn{width:40px;height:40px;font-size:15px}
   .font-label{padding:0 10px;height:40px;font-size:10px}
@@ -190,6 +205,41 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
   .modal-side{display:none}.modal-top{padding:8px 12px}
 }
 @media(max-width:400px){.kpi-grid{grid-template-columns:1fr}.hdr-logos img{height:22px}.hdr-logos{gap:12px}.filter-group{width:100%}.fbtn{flex:1;text-align:center}}
+
+/* Phone: transform the data table into stacked cards (no horizontal scroll) */
+@media(max-width:640px){
+  /* Status filter becomes a dropdown instead of a button row */
+  .filter-group{display:none}
+  .filter-select{display:block}
+  .filter-left{flex:1 1 auto;min-width:0} /* dropdown fills left, Columns sits on the right */
+  .col-menu-wrap{flex-shrink:0}
+  .tw{padding:0 12px 24px;overflow-x:visible}
+  .tbl thead{display:none}
+  .tbl,.tbl tbody,.tbl tfoot{display:block;width:100%}
+  .tbl tr{display:block;border:1px solid var(--border2);border-radius:10px;margin-bottom:10px;padding:2px 14px;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .tbl tbody tr:hover td{background:transparent}
+  .tbl td{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:5px 0;border-bottom:1px solid var(--border);white-space:normal;text-align:right;min-height:30px}
+  .tbl tbody td[data-label="#"]{display:none} /* row index adds no value on mobile */
+  .tbl tr td:last-child{border-bottom:none}
+  .tbl td::before{content:attr(data-label);font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);text-align:left;flex:0 0 auto;white-space:nowrap}
+  .tbl td.cell-ellipsis{max-width:none;overflow:visible;text-overflow:clip}
+  .tbl td.cell-dim,.tbl td.tr,.tbl td.tc{text-align:right}
+  /* Expandable document panel renders inside the main card (one continuous card) */
+  .tbl tbody tr:has(+ tr.doc-row:not([style*="display:none"])){border-bottom:none;border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0}
+  .tbl tr.doc-row{display:block;border:1px solid var(--border2);border-top:none;border-radius:0 0 10px 10px;background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.04);padding:0;margin:0 0 12px;overflow:hidden}
+  .tbl tr.doc-row td,.tbl tr.doc-row td.doc-panel{display:block;text-align:left;border-bottom:none;background:transparent}
+  .tbl tr.doc-row td::before{display:none}
+  .tbl tr.doc-row td>div{grid-template-columns:1fr!important}
+  /* Totals row as a compact card */
+  .tbl tfoot tr{border:2px solid var(--fg);box-shadow:none}
+  .tbl tfoot td:empty{display:none}
+  .tbl tfoot td::before{display:none}
+  .tbl tfoot td{justify-content:flex-end}
+  /* Larger tap targets */
+  .doc-btn{padding:7px 14px;font-size:11px}
+  .note-dot{font-size:16px;padding:4px}
+  .note-tip{right:0;left:auto;max-width:220px}
+}
 </style>
 </head>
 <body>
@@ -211,11 +261,13 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
     <img src="https://lh3.googleusercontent.com/d/1d3Yo8OrqMphr1hmSGB1bBfECxIpit-hK" alt="Ventanas of Westlake" title="Ventanas of Westlake">
   </div>
   <div class="hdr-right">
-    <div><div class="live-badge m"><span class="live-dot"></span> LIVE</div><p class="m" style="font-size:9px;color:var(--fg4);margin-top:4px" id="update-time"></p></div>
-    <div class="hdr-controls">
-      <div class="font-ctrl"><span class="font-label" id="font-label">12px</span><button class="font-btn" onclick="changeFontSize(-1)" title="Decrease font size">A-</button><button class="font-btn" onclick="changeFontSize(1)" title="Increase font size">A+</button></div>
-      <div class="col-menu-wrap"><button class="col-btn m" onclick="toggleColMenu()">⚙ Columns</button><div class="col-menu" id="col-menu"></div></div>
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle dark mode">🌙</button>
+    <div class="settings-wrap">
+      <button class="theme-btn" onclick="toggleSettings()" id="settings-btn" title="Settings" aria-label="Settings">⚙</button>
+      <div class="settings-menu" id="settings-menu">
+        <div class="settings-item"><span class="settings-label">Text size</span><div class="font-ctrl"><span class="font-label" id="font-label">12px</span><button class="font-btn" onclick="changeFontSize(-1)" title="Decrease font size">A-</button><button class="font-btn" onclick="changeFontSize(1)" title="Increase font size">A+</button></div></div>
+        <div class="settings-item"><span class="settings-label">Refresh data</span><button class="theme-btn" onclick="fetchData()" id="refresh-btn" title="Refresh data now">↻</button></div>
+        <div class="settings-item"><span class="settings-label">Dark mode</span><button class="theme-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle dark mode">🌙</button></div>
+      </div>
     </div>
   </div>
 </div>
@@ -227,14 +279,15 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
   <div class="buyer-section" id="buyer-section"></div>
 </div>
 
-<div class="filter-bar"><p class="m" style="font-size:10px;letter-spacing:.1em;color:var(--fg3)">TRANSACTIONS</p><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><div class="filter-group" id="filter-group"></div><label id="group-toggle" class="m" style="display:none;align-items:center;gap:5px;font-size:10px;color:var(--fg3);cursor:pointer;padding:5px 12px;border:1px solid var(--border2);border-radius:4px;background:var(--card);white-space:nowrap"><input type="checkbox" id="group-cb" onchange="groupByTxn=this.checked;render()" style="accent-color:var(--fg)"> Group by closing</label></div></div>
+<div class="filter-bar"><div class="filter-left"><div class="filter-group" id="filter-group"></div><select class="filter-select m" id="filter-select" onchange="setFilter(this.value)"></select></div><div class="filter-right"><div class="group-menu-wrap"><button class="col-btn m" id="group-btn" onclick="toggleGroupMenu()" title="Group transactions">⧉ Group</button><div class="col-menu" id="group-menu"></div></div><div class="col-menu-wrap"><button class="col-btn m" onclick="toggleColMenu()">▦ Columns</button><div class="col-menu" id="col-menu"></div></div></div></div>
 <div class="party-row"><input type="text" id="party-input" class="party-input" placeholder="Filter by seller or buyer…" oninput="setParty(this.value)"><button class="party-clear" id="party-clear" onclick="clearParty()" style="display:none">Clear</button><span class="m" style="font-size:10px;color:var(--fg3)" id="party-match"></span></div>
 
 <div class="tw"><table class="tbl"><thead><tr id="thead-row"></tr></thead><tbody id="tbody"></tbody><tfoot id="tfoot"></tfoot></table></div>
 
 <div class="footer m">
+  <p class="footer-live"><span class="live-badge m"><span class="live-dot"></span> LIVE</span> <span id="update-time"></span></p>
   <p>Source: <a href="https://docs.google.com/spreadsheets/d/14ABn9-kSRCtzaFV3m58R5Y1372RTx-ljchnq3Uf2450/edit" target="_blank">Ventanas Closings Sheet</a></p>
-  <p>Auto-refreshes every 60 seconds · The George &amp; Noonan Real Estate Group</p>
+  <p>Auto-refreshes every hour · The George &amp; Noonan Real Estate Group</p>
 </div>
 </div>
 
@@ -266,8 +319,12 @@ const COLS=[
   {key:'note',label:'Note',align:'tc',nosort:true,default:true},
   {key:'docs',label:'Docs',align:'tc',nosort:true,default:true},
 ];
-let visibleCols=COLS.filter(c=>c.default).map(c=>c.key);
-let allData=[],currentFilter='All',partySearch='',sortCol='',sortDir='asc',overviewOpen=false,groupByTxn=false;
+function defaultCols(){return COLS.filter(c=>c.default).map(c=>c.key);}
+function loadCols(){try{const s=JSON.parse(localStorage.getItem('visibleCols'));if(Array.isArray(s)){const valid=s.filter(k=>COLS.some(c=>c.key===k));if(valid.length)return valid;}}catch(e){}return defaultCols();}
+function saveCols(){try{localStorage.setItem('visibleCols',JSON.stringify(visibleCols));}catch(e){}}
+let visibleCols=loadCols();
+let allData=[],currentFilter='All',partySearch='',sortCol='',sortDir='asc',overviewOpen=false,groupBy='none';
+const GROUPS=[{k:'none',l:'None'},{k:'closing',l:'Closing'},{k:'seller',l:'Seller'},{k:'buyer',l:'Buyer'}];
 let mDocs=[],mIdx=0,mLot='',mType='';
 
 // Theme
@@ -282,12 +339,21 @@ applyFontSize();
 
 // Column visibility
 function toggleColMenu(){document.getElementById('col-menu').classList.toggle('open');}
+function toggleSettings(){document.getElementById('settings-menu').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.settings-wrap'))document.getElementById('settings-menu').classList.remove('open');});
 function renderColMenu(){
   document.getElementById('col-menu').innerHTML=COLS.map(c=>`<label class="col-menu-item"><input type="checkbox" ${visibleCols.includes(c.key)?'checked':''} onchange="toggleCol('${c.key}',this.checked)"> ${c.label}</label>`).join('')+`<div class="col-menu-divider"></div><div class="col-menu-reset" onclick="resetCols()">↻ Reset to default</div>`;
 }
-function toggleCol(key,checked){if(checked){if(!visibleCols.includes(key))visibleCols.push(key);}else{visibleCols=visibleCols.filter(k=>k!==key);}renderColMenu();render();}
-function resetCols(){visibleCols=COLS.filter(c=>c.default).map(c=>c.key);renderColMenu();render();}
+function toggleCol(key,checked){if(checked){if(!visibleCols.includes(key))visibleCols.push(key);}else{visibleCols=visibleCols.filter(k=>k!==key);}saveCols();renderColMenu();render();}
+function resetCols(){visibleCols=defaultCols();localStorage.removeItem('visibleCols');renderColMenu();render();}
 document.addEventListener('click',e=>{if(!e.target.closest('.col-menu-wrap'))document.getElementById('col-menu').classList.remove('open');});
+
+// Group by
+function toggleGroupMenu(){document.getElementById('group-menu').classList.toggle('open');}
+function renderGroupMenu(){document.getElementById('group-menu').innerHTML=GROUPS.map(g=>`<div class="col-menu-item" onclick="setGroup('${g.k}')"><span style="width:14px;display:inline-block;color:var(--fg)">${groupBy===g.k?'✓':''}</span> ${g.l}</div>`).join('');}
+function updateGroupBtn(){const b=document.getElementById('group-btn');if(b)b.classList.toggle('act',groupBy!=='none');}
+function setGroup(k){groupBy=k;document.getElementById('group-menu').classList.remove('open');renderGroupMenu();updateGroupBtn();render();}
+document.addEventListener('click',e=>{if(!e.target.closest('.group-menu-wrap'))document.getElementById('group-menu').classList.remove('open');});
 
 // Parsing
 function pL(l){const v=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')q=!q;else if(ch===','&&!q){v.push(c.trim());c='';}else c+=ch;}v.push(c.trim());return v;}
@@ -302,15 +368,19 @@ function fD(d){if(!d||d==='TBD'||d==='')return'TBD';const dt=new Date(d);return 
 function esc(s){if(!s)return'';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 function norm(rows){return rows.map(r=>{const st=col(r,'Status');if(!st||st==='Totals')return null;return{type:col(r,'Type'),lot:col(r,'L&B')||col(r,'L&amp;B'),txnId:col(r,'Transaction'),address:col(r,'Street'),lots:1,status:st,seller:col(r,'Seller'),buyer:col(r,'Buyer'),closeDate:col(r,'Closing Date'),price:pC(col(r,'Contract Price')),synergyPct:col(r,'Synergy Compensation')||'',note:col(r,'Note'),docs:pDocs(col(r,'Document'))};}).filter(Boolean);}
 
-function getF(){let f=currentFilter==='All'?allData:allData.filter(r=>r.status===currentFilter);if(partySearch){const q=partySearch.toLowerCase();f=f.filter(r=>(r.seller||'').toLowerCase().includes(q)||(r.buyer||'').toLowerCase().includes(q));}if(groupByTxn&&currentFilter==='Closed'){f=groupRows(f);}return f;}
+function getF(){let f=currentFilter==='All'?allData:allData.filter(r=>r.status===currentFilter);if(partySearch){const q=partySearch.toLowerCase();f=f.filter(r=>(r.seller||'').toLowerCase().includes(q)||(r.buyer||'').toLowerCase().includes(q));}
+  if(groupBy==='closing')f=groupRows(f,r=>r.txnId);
+  else if(groupBy==='seller')f=groupRows(f,r=>(r.seller||'').trim());
+  else if(groupBy==='buyer')f=groupRows(f,r=>(r.buyer||'').trim());
+  return f;}
 
-function groupRows(rows){
-  const groups={};const ungrouped=[];
-  rows.forEach(r=>{if(r.txnId){if(!groups[r.txnId])groups[r.txnId]=[];groups[r.txnId].push(r);}else ungrouped.push(r);});
+function groupRows(rows,keyFn){
+  const groups={};const order=[];const ungrouped=[];
+  rows.forEach(r=>{const k=keyFn(r);if(k){if(!groups[k]){groups[k]=[];order.push(k);}groups[k].push(r);}else ungrouped.push(r);});
   const result=[];
-  Object.entries(groups).forEach(([tid,items])=>{
+  order.forEach(k=>{const items=groups[k];
     if(items.length===1){result.push(items[0]);return;}
-    const merged={...items[0],lot:items.map(r=>r.lot).join(', '),address:items.map(r=>r.address).filter(Boolean).join(', '),lots:items.length,price:items.reduce((s,r)=>s+r.price,0),docs:[].concat(...items.map(r=>r.docs)),note:items.map(r=>r.note).filter(Boolean).join('; '),txnId:tid,_grouped:true};
+    const merged={...items[0],lot:items.map(r=>r.lot).filter(Boolean).join(', '),address:items.map(r=>r.address).filter(Boolean).join(', '),lots:items.reduce((s,r)=>s+(r.lots||1),0),price:items.reduce((s,r)=>s+r.price,0),docs:[].concat(...items.map(r=>r.docs)),note:items.map(r=>r.note).filter(Boolean).join('; '),_grouped:true};
     result.push(merged);
   });
   return result.concat(ungrouped);
@@ -342,7 +412,7 @@ function render(){
   document.getElementById('update-time').textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   const statuses=['All',...[...new Set(allData.map(r=>r.status))]];
   document.getElementById('filter-group').innerHTML=statuses.map(f=>{const c=f==='All'?allData.length:allData.filter(r=>r.status===f).length;const s=SM[f];return`<button class="fbtn m ${currentFilter===f?'act':''}" onclick="setFilter('${esc(f)}')">${f==='All'?'All':(s?s.label:f)} (${c})</button>`;}).join('');
-  document.getElementById('group-toggle').style.display=currentFilter==='Closed'?'flex':'none';
+  document.getElementById('filter-select').innerHTML=statuses.map(f=>{const c=f==='All'?allData.length:allData.filter(r=>r.status===f).length;const s=SM[f];return`<option value="${esc(f)}" ${currentFilter===f?'selected':''}>${f==='All'?'All':(s?s.label:f)} (${c})</option>`;}).join('');
   const pm=document.getElementById('party-match'),pc=document.getElementById('party-clear');
   if(partySearch){pm.textContent=filtered.length+' match'+(filtered.length!==1?'es':'');pc.style.display='inline-block';}else{pm.textContent='';pc.style.display='none';}
   renderOverview();
@@ -368,7 +438,7 @@ function render(){
       note:row.note?`<td class="tc"><span class="note-dot" onclick="tNote(this)">●<div class="note-tip">${esc(row.note)}</div></span></td>`:`<td class="tc cell-dim">—</td>`,
       docs:row.docs.length>0?`<td class="tc"><button class="doc-btn" onclick="tDocs(this,${i})">📁 ${row.docs.length}</button></td>`:`<td class="tc cell-dim">—</td>`,
     };
-    let html=`<tr>${vc.map(c=>cells[c.key]).join('')}</tr>`;
+    let html=`<tr>${vc.map(c=>cells[c.key].replace('<td',`<td data-label="${c.label}"`)).join('')}</tr>`;
     if(row.docs.length>0){
       const cards=row.docs.map((d,j)=>{const s=DS[d.type]||DS.Other;return`<div class="doc-card" onclick="openM(${i},${j})"><div class="doc-icon" style="background:${s.b};color:${s.c}">${s.i}</div><div class="doc-mid"><div class="doc-name" title="${esc(d.name)}">${esc(d.name)}</div><div class="doc-sub">${d.type} · Click to preview</div></div><span class="doc-open">View →</span></div>`;}).join('');
       html+=`<tr class="doc-row" id="dp-${i}" style="display:none"><td colspan="${colSpan}" class="doc-panel" style="padding:12px 16px"><p class="m" style="font-size:9px;letter-spacing:.1em;color:var(--fg3);margin:0 0 8px">DOCUMENTS — LOT ${esc(row.lot)} (${esc(row.type)}) · ${row.docs.length} file${row.docs.length!==1?'s':''}</p><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px">${cards}</div></td></tr>`;
@@ -382,7 +452,7 @@ function render(){
   document.getElementById('tfoot').innerHTML=`<tr>${vc.map(c=>fCells[c.key]).join('')}</tr>`;
 }
 
-function setFilter(f){currentFilter=f;if(f!=='Closed'){groupByTxn=false;const cb=document.getElementById('group-cb');if(cb)cb.checked=false;}render();}
+function setFilter(f){currentFilter=f;render();}
 function setParty(v){partySearch=v.trim();render();}
 function clearParty(){partySearch='';document.getElementById('party-input').value='';render();}
 function sSort(k){if(sortCol===k)sortDir=sortDir==='asc'?'desc':'asc';else{sortCol=k;sortDir='asc';}render();}
@@ -397,8 +467,8 @@ function rM(){const d=mDocs[mIdx],s=DS[d.type]||DS.Other;document.getElementById
 document.addEventListener('keydown',e=>{if(!document.getElementById('modal').classList.contains('active'))return;if(e.key==='Escape')closeModal();if(e.key==='ArrowLeft')modalNav(-1);if(e.key==='ArrowRight')modalNav(1);});
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
-async function fetchData(){document.getElementById('loading').style.display='flex';document.getElementById('error').style.display='none';document.getElementById('dashboard').style.display='none';try{const r=await fetch(CSV_URL);if(!r.ok)throw new Error('HTTP '+r.status);allData=norm(parseCSV(await r.text()));document.getElementById('loading').style.display='none';document.getElementById('dashboard').style.display='block';renderColMenu();render();}catch(e){console.error(e);document.getElementById('loading').style.display='none';document.getElementById('error').style.display='flex';}}
-fetchData();setInterval(fetchData,60000);
+async function fetchData(){document.getElementById('loading').style.display='flex';document.getElementById('error').style.display='none';document.getElementById('dashboard').style.display='none';try{const r=await fetch(CSV_URL);if(!r.ok)throw new Error('HTTP '+r.status);allData=norm(parseCSV(await r.text()));document.getElementById('loading').style.display='none';document.getElementById('dashboard').style.display='block';renderColMenu();renderGroupMenu();updateGroupBtn();render();}catch(e){console.error(e);document.getElementById('loading').style.display='none';document.getElementById('error').style.display='flex';}}
+fetchData();setInterval(fetchData,3600000);
 </script>
 </body>
 </html>
