@@ -53,6 +53,14 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
 .theme-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border2);background:var(--card);color:var(--fg2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .theme-btn:hover{border-color:var(--fg);color:var(--fg)}
 
+/* Copy packet link button */
+.copy-link-btn{height:36px;padding:0 12px;border-radius:8px;border:1px solid var(--border2);background:var(--card);color:var(--fg2);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s}
+.copy-link-btn:hover{border-color:var(--fg);color:var(--fg)}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);z-index:1000;background:var(--fg);color:var(--bg);font-family:'DM Mono',monospace;font-size:12px;padding:10px 16px;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
 /* Settings gear menu */
 .settings-wrap{position:relative}
 .settings-menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:100;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);min-width:210px;padding:6px}
@@ -299,6 +307,7 @@ body{font-family:'Newsreader',Georgia,serif;background:var(--bg);color:var(--fg)
     <img src="logo-ventanas.png" alt="Ventanas of Westlake" title="Ventanas of Westlake">
   </div>
   <div class="hdr-right">
+    <button class="copy-link-btn" onclick="copyPacketLink()" title="Copy link to the Ventanas of Westlake Google Drive packet" aria-label="Copy packet link">🔗 Copy Packet Link</button>
     <div class="settings-wrap">
       <button class="theme-btn" onclick="toggleSettings()" id="settings-btn" title="Settings" aria-label="Settings">⚙</button>
       <div class="settings-menu" id="settings-menu">
@@ -390,6 +399,29 @@ applyFontSize();
 // Column visibility
 function toggleColMenu(){document.getElementById('col-menu').classList.toggle('open');}
 function toggleSettings(){document.getElementById('settings-menu').classList.toggle('open');}
+
+const PACKET_URL='https://drive.google.com/drive/folders/1hS9LfoWcmP2ga9xUrFty2ncms017KFTo?usp=drive_link';
+let toastTimer;
+function showToast(msg){
+  let t=document.getElementById('toast');
+  if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');t.setAttribute('aria-live','polite');document.body.appendChild(t);}
+  t.textContent=msg;
+  requestAnimationFrame(()=>t.classList.add('show'));
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+function copyPacketLink(){
+  const fallback=()=>{
+    const ta=document.createElement('textarea');ta.value=PACKET_URL;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();let ok=false;
+    try{ok=document.execCommand('copy');}catch(e){}
+    document.body.removeChild(ta);
+    showToast(ok?'Packet link copied to clipboard':'Could not copy link');
+  };
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(PACKET_URL).then(()=>showToast('Packet link copied to clipboard'),fallback);
+  }else fallback();
+}
 document.addEventListener('click',e=>{if(!e.target.closest('.settings-wrap'))document.getElementById('settings-menu').classList.remove('open');});
 function renderColMenu(){
   document.getElementById('col-menu').innerHTML=COLS.map(c=>`<label class="col-menu-item"><input type="checkbox" ${visibleCols.includes(c.key)?'checked':''} onchange="toggleCol('${c.key}',this.checked)"> ${c.label}</label>`).join('')+`<div class="col-menu-divider"></div><div class="col-menu-reset" onclick="resetCols()">↻ Reset to default</div>`;
